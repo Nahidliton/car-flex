@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+  <title>Car Flex · Premium Vehicle Care</title>
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+
+    <!-- Top Bar with Language Toggle -->
+    <div class="top-bar glass-effect">
+      <div class="brand">
+        <i class="fas fa-car-side"></i>
+        <h1 id="brandName">Car Flex</h1>
+      </div>
+      <div class="lang-switch">
+        <i class="fas fa-globe"></i>
+        <button id="langEn" class="lang-btn active">EN</button>
+        <button id="langBn" class="lang-btn">বাংলা</button>
+      </div>
+    </div>
+
+    <!-- Viewer Message (No Login Required) -->
+    <div class="viewer-note glass-effect" id="viewerNote">
+      <i class="fas fa-eye"></i>
+      <span id="viewerMsg">👋 Browse all features — no login needed. Sign up only to book.</span>
+    </div>
+
+    <!-- Vehicle Selection Section -->
+    <div class="section-title">
+      <h2 id="vehicleSecTitle">1. Choose your vehicle</h2>
+      <span class="badge" id="vehicleBadge">required</span>
+    </div>
+    <div class="vehicle-grid" id="vehicleGrid"></div>
+
+    <!-- Description Box -->
+    <div class="desc-area">
+      <textarea id="vehicleDesc" class="desc-box glass-card" rows="2" placeholder="📝 Describe your vehicle (model, condition, special requests...)"></textarea>
+    </div>
+
+    <!-- Service Categories Section -->
+    <div class="section-title">
+      <h2 id="serviceSecTitle">2. Additional services</h2>
+      <span class="badge" id="serviceBadge">vehicle specific</span>
+    </div>
+    <div class="service-row" id="serviceCatContainer"></div>
+
+    <!-- Booking Section (Date & Time) -->
+    <div class="booking-section glass-card">
+      <div class="booking-flex">
+        <div class="date-field">
+          <label class="booking-label" id="dateLabel"><i class="far fa-calendar-alt"></i> Service date</label>
+          <input type="date" id="serviceDate" class="glass-input">
+        </div>
+        <div class="time-field">
+          <label class="booking-label" id="timeLabel"><i class="far fa-clock"></i> Time slot</label>
+          <select id="serviceTime" class="glass-input">
+            <option value="09:00">09:00 - 10:30</option>
+            <option value="11:00">11:00 - 12:30</option>
+            <option value="14:00">14:00 - 15:30</option>
+            <option value="16:00">16:00 - 17:30</option>
+            <option value="18:00">18:00 - 19:30</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Authentication Prompt -->
+    <div class="auth-prompt glass-effect" id="authPrompt">
+      <div class="note-small">
+        <i class="fas fa-lock"></i>
+        <span id="authMsg">🔐 To confirm service, please log in or create an account.</span>
+      </div>
+      <div class="auth-buttons">
+        <button class="btn btn-outline" id="loginBtn"><i class="fas fa-sign-in-alt"></i> <span id="loginTxt">Log in</span></button>
+        <button class="btn btn-primary" id="signupBtn"><i class="fas fa-user-plus"></i> <span id="signupTxt">Sign up</span></button>
+      </div>
+    </div>
+
+    <!-- Demo Footnote -->
+    <div class="demo-note" id="footnoteDemo">
+      ⚡ Demo: you can select vehicle, see dynamic service lists, pick date — no login required for preview.
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <p id="footerText">🚗 Car Flex — premium vehicle care. © 2025</p>
+    </footer>
+  </div>
+
+  <!-- Custom JavaScript -->
+  <script src="script.js"></script>
+</body>
+</html>
