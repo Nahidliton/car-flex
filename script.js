@@ -1,5 +1,4 @@
-// ===== CAR FLEX - EYE-SOOTHING VERSION =====
-// Complete interactive functionality with Bangla/English language support
+// ===== CAR FLEX - COMPLETE VEHICLE & PRICE SYSTEM =====
 
 // ---------- LANGUAGE DATABASE ----------
 const langData = {
@@ -17,10 +16,11 @@ const langData = {
     loginTxt: "Log in",
     signupTxt: "Sign up",
     footer: "🚗 Car Flex — premium vehicle care. © 2025",
-    vehicleTypes: ["Bike", "Car", "Sedan", "Microbus", "Coaster", "Truck", "Bus"],
+    vehicleTypes: ["Bike", "Car", "Microbus", "Coaster", "Truck", "Bus"],
     cat1: "General Servicing",
     cat2: "Master Servicing",
-    cat3: "Wash Vehicle"
+    cat3: "Wash Vehicle",
+    priceLabel: "Price"
   },
   bn: {
     brand: "কার ফ্লেক্স",
@@ -36,70 +36,244 @@ const langData = {
     loginTxt: "লগইন",
     signupTxt: "সাইন আপ",
     footer: "🚗 কার ফ্লেক্স — প্রিমিয়াম গাড়ি যত্ন। © ২০২৫",
-    vehicleTypes: ["বাইক", "কার", "সেডান", "মাইক্রোবাস", "কোস্টার", "ট্রাক", "বাস"],
+    vehicleTypes: ["বাইক", "কার", "মাইক্রোবাস", "কোস্টার", "ট্রাক", "বাস"],
     cat1: "জেনারেল সার্ভিসিং",
     cat2: "মাস্টার সার্ভিসিং",
-    cat3: "ওয়াশ ভেহিকল"
+    cat3: "ওয়াশ ভেহিকল",
+    priceLabel: "মূল্য"
   }
 };
 
-// ---------- SERVICE DATABASE ----------
+// ---------- PRICE DATABASE (BDT) ----------
+// Based on vehicle type and service category
+const priceDatabase = {
+  Bike: {
+    general: 2000,
+    master: 3500,
+    wash: 300
+  },
+  Car: {
+    general: 5000,
+    master: 8500,
+    wash: 500
+  },
+  Microbus: {
+    general: 8000,
+    master: 15000,
+    wash: 1200
+  },
+  Coaster: {
+    general: 8000,
+    master: 15000,
+    wash: 1200
+  },
+  Truck: {
+    general: 10000,
+    master: 20000,
+    wash: 1500
+  },
+  Bus: {
+    general: 8000,
+    master: 15000,
+    wash: 1200
+  }
+};
+
+// ---------- SERVICE DATABASE (Vehicle Specific) ----------
+// Completely different services for each vehicle type
 const serviceDatabase = {
-  general: {
-    base: [
-      'Engine oil check & top-up',
+  // ----- BIKE SERVICES -----
+  Bike: {
+    general: [
+      'Engine oil change (semi-synthetic)',
       'Air filter cleaning',
-      'Brake pad inspection',
-      'Tyre pressure & conditioning',
-      'Battery health report',
-      'Lights & horn test',
-      'Fluid levels check'
+      'Spark plug inspection',
+      'Chain cleaning & lubrication',
+      'Brake pad adjustment',
+      'Clutch cable tuning',
+      'Tyre pressure check',
+      'Battery terminal cleaning'
     ],
-    bike: ['Chain lubrication & tensioning', 'Clutch cable adjustment'],
-    car: ['Cabin air filter check', 'Wiper blade inspection'],
-    sedan: ['Suspension check', 'Wheel alignment'],
-    microbus: ['Sliding door roller clean', 'AC vent cleaning'],
-    coaster: ['Diesel filter check', 'Seat mechanism lube'],
-    truck: ['Air brake inspection', 'Leaf spring check'],
-    bus: ['Air brake system', 'Passenger seat check']
-  },
-  master: {
-    base: [
+    master: [
       'Full engine diagnostics',
-      'Gear oil & coolant replacement',
-      'AC performance check & gas refill',
-      'Brake shoe/pad replacement',
-      'Suspension & steering check',
-      'Wheel alignment & balancing',
-      'Spark plug / injector cleaning',
-      'Timing belt inspection'
+      'Engine oil & filter change',
+      'Valve clearance adjustment',
+      'Carburetor/Injector cleaning',
+      'Brake pad replacement',
+      'Chain & sprocket check',
+      'Wheel alignment',
+      'Coolant top-up'
     ],
-    bike: ['Valve clearance adjustment', 'Carburetor tuning'],
-    car: ['ECU error scan', 'Transmission fluid check'],
-    sedan: ['ABS brake test', 'Power steering flush'],
-    microbus: ['Differential oil change', 'Propeller shaft check'],
-    coaster: ['Turbocharger inspection', 'Radiator flush'],
-    truck: ['DPF cleaning', 'Clutch plate check'],
-    bus: ['Air suspension check', 'Hydraulic brake test']
-  },
-  wash: {
-    base: [
-      'Exterior foam wash & wax',
-      'Interior vacuum & shampoo',
+    wash: [
+      'Gentle foam wash',
+      'Chain degreasing',
+      'Alloy wheel cleaning',
       'Dashboard polish',
-      'Glass & mirror cleaning',
-      'Underbody rinse',
-      'Tyre shine & rim cleaning',
-      'Door jambs cleaning',
-      'Engine bay degrease'
+      'Silencer pipe cleaning',
+      'Tyre shine'
+    ]
+  },
+  
+  // ----- CAR SERVICES -----
+  Car: {
+    general: [
+      'Engine oil change (semi-synthetic)',
+      'Oil filter replacement',
+      'Air filter cleaning',
+      'AC gas check',
+      'Brake fluid top-up',
+      'Wiper blade inspection',
+      'Battery health check',
+      'Tyre rotation'
     ],
-    bike: ['Gentle chain degrease', 'Spoke cleaning'],
-    car: ['Paint protection coating', 'Leather seat conditioning'],
-    sedan: ['Sunroof track clean', 'Carpet deep clean'],
-    microbus: ['Roof rack cleaning', 'Cargo area vacuum'],
-    coaster: ['High-pressure exterior', 'Window track clean'],
-    truck: ['Trailer wash', 'Mud flap cleaning'],
-    bus: ['Full exterior brush wash', 'Seat upholstery clean']
+    master: [
+      'Full engine scan (ECU)',
+      'Engine oil & filter (synthetic)',
+      'Gear oil replacement',
+      'Coolant flush & refill',
+      'Brake pad/shoe inspection',
+      'Spark plug replacement',
+      'Fuel injector cleaning',
+      'Wheel alignment & balancing'
+    ],
+    wash: [
+      'Exterior foam wash',
+      'Interior vacuum cleaning',
+      'Dashboard polish',
+      'Glass cleaning',
+      'Underbody wash',
+      'Tyre dressing',
+      'Door jambs cleaning'
+    ]
+  },
+  
+  // ----- MICROBUS SERVICES -----
+  Microbus: {
+    general: [
+      'Engine oil change (diesel)',
+      'Oil & fuel filter check',
+      'Air filter cleaning',
+      'Brake system inspection',
+      'Power steering fluid check',
+      'AC vent cleaning',
+      'Sliding door roller lube',
+      'Battery water top-up'
+    ],
+    master: [
+      'Full engine diagnostics',
+      'Engine oil & all filters',
+      'Gear oil replacement',
+      'Differential oil check',
+      'Brake shoe/pad replacement',
+      'AC gas refill',
+      'Propeller shaft lubrication',
+      'Coolant replacement'
+    ],
+    wash: [
+      'High-pressure foam wash',
+      'Interior deep vacuum',
+      'Roof rack cleaning',
+      'Seat upholstery clean',
+      'Window track cleaning',
+      'Underbody rinse',
+      'Tyre shine'
+    ]
+  },
+  
+  // ----- COASTER SERVICES -----
+  Coaster: {
+    general: [
+      'Engine oil change (diesel)',
+      'Fuel filter replacement',
+      'Air filter cleaning',
+      'Brake fluid check',
+      'Power steering fluid top-up',
+      'AC filter cleaning',
+      'Battery terminals clean',
+      'Light & horn test'
+    ],
+    master: [
+      'Complete engine tuning',
+      'Oil & all filters change',
+      'Gearbox oil replacement',
+      'Differential oil change',
+      'Brake system overhaul',
+      'AC performance check',
+      'Radiator flush',
+      'Suspension check'
+    ],
+    wash: [
+      'Full body foam wash',
+      'Interior shampoo',
+      'Window cleaning',
+      'Floor mat pressure wash',
+      'Engine bay degrease',
+      'Tyre polishing'
+    ]
+  },
+  
+  // ----- TRUCK SERVICES -----
+  Truck: {
+    general: [
+      'Engine oil change (diesel)',
+      'Fuel filter water drain',
+      'Air filter cleaning',
+      'Brake adjustment',
+      'Clutch fluid check',
+      'Leaf spring inspection',
+      'Battery load test',
+      'Tyre pressure check'
+    ],
+    master: [
+      'Full engine diagnostics',
+      'Engine oil & all filters',
+      'Gearbox oil change',
+      'Differential oil service',
+      'Brake shoe replacement',
+      'Clutch plate check',
+      'DPF cleaning',
+      'Coolant replacement'
+    ],
+    wash: [
+      'High-pressure truck wash',
+      'Trailer cleaning',
+      'Underbody high jet',
+      'Mud flap cleaning',
+      'Cabin interior clean',
+      'Wheel rim cleaning'
+    ]
+  },
+  
+  // ----- BUS SERVICES -----
+  Bus: {
+    general: [
+      'Engine oil change',
+      'Fuel filter cleaning',
+      'Air filter service',
+      'Brake system check',
+      'Power steering fluid',
+      'AC vent cleaning',
+      'Passenger seat check',
+      'Battery maintenance'
+    ],
+    master: [
+      'Engine tuning & scan',
+      'Oil & all filters replace',
+      'Gearbox oil service',
+      'Differential oil change',
+      'Brake shoe replacement',
+      'Air suspension check',
+      'AC gas refill',
+      'Coolant flush'
+    ],
+    wash: [
+      'Full bus exterior wash',
+      'Interior deep cleaning',
+      'Seat upholstery wash',
+      'Window cleaning',
+      'Floor scrubbing',
+      'Tyre dressing'
+    ]
   }
 };
 
@@ -135,7 +309,6 @@ const mapToEnglish = (bnVehicle) => {
   const mapping = {
     'বাইক': 'Bike',
     'কার': 'Car',
-    'সেডান': 'Sedan',
     'মাইক্রোবাস': 'Microbus',
     'কোস্টার': 'Coaster',
     'ট্রাক': 'Truck',
@@ -148,7 +321,6 @@ const mapToBangla = (enVehicle) => {
   const mapping = {
     'Bike': 'বাইক',
     'Car': 'কার',
-    'Sedan': 'সেডান',
     'Microbus': 'মাইক্রোবাস',
     'Coaster': 'কোস্টার',
     'Truck': 'ট্রাক',
@@ -157,31 +329,27 @@ const mapToBangla = (enVehicle) => {
   return mapping[enVehicle] || enVehicle;
 };
 
-// ---------- SERVICE GENERATOR ----------
-function getServicesForCategory(categoryKey, vehicleType, lang = 'en') {
-  const category = serviceDatabase[categoryKey];
-  let services = [...category.base];
+// ---------- GET VEHICLE SPECIFIC SERVICES ----------
+function getServicesForVehicle(vehicleType, categoryKey) {
+  // Default to Car if vehicle not found
+  const vehicle = serviceDatabase[vehicleType] || serviceDatabase.Car;
   
-  // Add vehicle-specific services
-  const vehicleLower = vehicleType.toLowerCase();
+  if (categoryKey === 'general') return vehicle.general || serviceDatabase.Car.general;
+  if (categoryKey === 'master') return vehicle.master || serviceDatabase.Car.master;
+  if (categoryKey === 'wash') return vehicle.wash || serviceDatabase.Car.wash;
   
-  if (vehicleLower.includes('bike') && category.bike) {
-    services = [...services.slice(0, 5), ...category.bike, ...services.slice(5, 7)];
-  } else if (vehicleLower.includes('car') && category.car) {
-    services = [...services.slice(0, 5), ...category.car, ...services.slice(5, 7)];
-  } else if (vehicleLower.includes('sedan') && category.sedan) {
-    services = [...services.slice(0, 5), ...category.sedan, ...services.slice(5, 7)];
-  } else if (vehicleLower.includes('microbus') && category.microbus) {
-    services = [...services.slice(0, 5), ...category.microbus, ...services.slice(5, 7)];
-  } else if (vehicleLower.includes('coaster') && category.coaster) {
-    services = [...services.slice(0, 5), ...category.coaster, ...services.slice(5, 7)];
-  } else if (vehicleLower.includes('truck') && category.truck) {
-    services = [...services.slice(0, 5), ...category.truck, ...services.slice(5, 7)];
-  } else if (vehicleLower.includes('bus') && category.bus) {
-    services = [...services.slice(0, 5), ...category.bus, ...services.slice(5, 7)];
-  }
+  return [];
+}
+
+// ---------- GET PRICE FOR VEHICLE & SERVICE ----------
+function getPriceForVehicle(vehicleType, categoryKey) {
+  const vehiclePrices = priceDatabase[vehicleType] || priceDatabase.Car;
   
-  return services.slice(0, 8); // Show max 8 services
+  if (categoryKey === 'general') return vehiclePrices.general;
+  if (categoryKey === 'master') return vehiclePrices.master;
+  if (categoryKey === 'wash') return vehiclePrices.wash;
+  
+  return 0;
 }
 
 // ---------- RENDER VEHICLES ----------
@@ -193,9 +361,8 @@ function renderVehicles() {
     let icon = 'fa-car';
     if (v.includes('Bike') || v.includes('বাইক')) icon = 'fa-motorcycle';
     else if (v.includes('Car') || v.includes('কার')) icon = 'fa-car';
-    else if (v.includes('Sedan') || v.includes('সেডান')) icon = 'fa-car-side';
-    else if (v.includes('Microbus') || v.includes('মাইক্রোবাস')) icon = 'fa-bus';
-    else if (v.includes('Coaster') || v.includes('কোস্টার')) icon = 'fa-truck';
+    else if (v.includes('Microbus') || v.includes('মাইক্রোবাস')) icon = 'fa-bus'; // Microbus gets bus icon
+    else if (v.includes('Coaster') || v.includes('কোস্টার')) icon = 'fa-bus'; // Coaster also gets bus icon
     else if (v.includes('Truck') || v.includes('ট্রাক')) icon = 'fa-truck';
     else if (v.includes('Bus') || v.includes('বাস')) icon = 'fa-bus';
     
@@ -230,13 +397,13 @@ function attachVehicleListeners() {
       document.querySelectorAll('.vehicle-card').forEach(c => c.classList.remove('active'));
       this.classList.add('active');
       
-      // Re-render services
+      // Re-render services with new vehicle
       renderServiceCategories();
     });
   });
 }
 
-// ---------- RENDER SERVICE CATEGORIES ----------
+// ---------- RENDER SERVICE CATEGORIES WITH PRICES ----------
 function renderServiceCategories() {
   const categories = [
     { key: 'general', name: langData[currentLang].cat1, icon: 'fa-tools' },
@@ -248,9 +415,19 @@ function renderServiceCategories() {
   const vehicleDisplay = currentLang === 'en' 
     ? selectedVehicle 
     : mapToBangla(selectedVehicle);
+  
+  const priceLabel = langData[currentLang].priceLabel;
 
   categories.forEach(cat => {
-    const points = getServicesForCategory(cat.key, selectedVehicle, currentLang);
+    // Get vehicle-specific services
+    const points = getServicesForVehicle(selectedVehicle, cat.key);
+    
+    // Get price for this vehicle and service
+    const price = getPriceForVehicle(selectedVehicle, cat.key);
+    
+    // Format price with commas
+    const formattedPrice = price.toLocaleString('en-BD');
+    
     const listItems = points.map(p => 
       `<li><i class="fas fa-check-circle"></i> ${p}</li>`
     ).join('');
@@ -264,6 +441,15 @@ function renderServiceCategories() {
                 </span>
               </h3>
               <ul class="service-list">${listItems}</ul>
+              <div class="price-tag">
+                <span class="price-label">
+                  <i class="fas fa-bangladeshi-taka-sign"></i> ${priceLabel}:
+                </span>
+                <span class="price-amount">
+                  ৳${formattedPrice}
+                  <small>BDT</small>
+                </span>
+              </div>
             </div>`;
   });
 
@@ -319,7 +505,7 @@ function setupEventListeners() {
   elements.langEn.addEventListener('click', () => updateLanguage('en'));
   elements.langBn.addEventListener('click', () => updateLanguage('bn'));
 
-  // Auth buttons - now at top right
+  // Auth buttons
   document.getElementById('loginBtn').addEventListener('click', () => {
     alert(currentLang === 'en' 
       ? '🔐 Login demo — Redirecting to secure login page.' 

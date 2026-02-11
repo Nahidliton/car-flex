@@ -1,22 +1,20 @@
 /* ===== EYE-SOOTHING COLOR PALETTE ===== */
 :root {
-  /* Soft, accessible colors - NOT dark */
-  --primary: #2a6f97;      /* Calm blue */
+  /* Soft, accessible colors */
+  --primary: #2a6f97;
   --primary-dark: #1e5a7a;
   --primary-light: #e8f1f9;
   --primary-soft: #c8e2f0;
-  --secondary: #3a546d;    /* Muted navy */
-  --accent: #5fa8c7;       /* Soft teal */
-  --success: #5f9c7b;      /* Muted green */
-  --warning: #e6b87e;      /* Warm sand */
-  --light-bg: #fafcfc;     /* Very light, eye-soothing background */
-  --card-bg: #ffffff;      /* Pure white for cards */
-  --text-dark: #2c3e50;    /* Soft dark gray for text - HIGH VISIBILITY */
-  --text-soft: #4a5f6e;    /* Medium contrast */
-  --text-light: #f8fafc;
-  --border-soft: #dde7f0;  /* Soft border */
+  --secondary: #3a546d;
+  --accent: #5fa8c7;
+  --success: #2e7d5e;
+  --price-tag: #1e5a7a;
+  --light-bg: #fafcfc;
+  --card-bg: #ffffff;
+  --text-dark: #2c3e50;
+  --text-soft: #4a5f6e;
+  --border-soft: #dde7f0;
   --border-light: #e9eef2;
-  --gray-soft: #7c8f9c;
   --shadow-color: rgba(42, 111, 151, 0.08);
   --shadow-hover-color: rgba(42, 111, 151, 0.15);
   
@@ -82,7 +80,6 @@ body {
   font-weight: 700;
   letter-spacing: -0.5px;
   color: var(--primary-dark);
-  text-shadow: 0 1px 2px rgba(255,255,255,0.5);
 }
 
 .top-right-actions {
@@ -312,6 +309,8 @@ body {
   box-shadow: 0 8px 16px var(--shadow-color);
   transition: var(--transition);
   border: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
 }
 
 .service-cat:hover {
@@ -326,7 +325,7 @@ body {
   gap: 10px;
   font-size: 1.4rem;
   font-weight: 700;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   color: var(--primary-dark);
   flex-wrap: wrap;
   border-bottom: 2px solid var(--primary-soft);
@@ -349,6 +348,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  margin-left: 5px;
 }
 
 .vehicle-type-badge i {
@@ -358,6 +358,8 @@ body {
 
 .service-list {
   list-style: none;
+  margin-bottom: 1.2rem;
+  flex-grow: 1;
 }
 
 .service-list li {
@@ -379,6 +381,45 @@ body {
   font-size: 0.95rem;
   width: 20px;
   text-align: center;
+}
+
+/* ===== PRICE TAG ===== */
+.price-tag {
+  margin-top: 1.2rem;
+  padding: 1rem 1.2rem;
+  background: var(--primary-light);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-left: 6px solid var(--primary);
+  font-weight: 600;
+}
+
+.price-label {
+  color: var(--primary-dark);
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.price-label i {
+  color: var(--primary);
+}
+
+.price-amount {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+  letter-spacing: -0.5px;
+}
+
+.price-amount small {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-soft);
+  margin-left: 4px;
 }
 
 /* ===== BOOKING SECTION ===== */
@@ -512,6 +553,10 @@ footer {
   .service-cat h3 {
     font-size: 1.25rem;
   }
+  
+  .price-amount {
+    font-size: 1.2rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -549,9 +594,15 @@ footer {
   .viewer-note {
     padding: 1rem;
   }
+  
+  .price-tag {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 }
 
-/* ===== TEXT VISIBILITY FIX ===== */
+/* ===== TEXT VISIBILITY ===== */
 h1, h2, h3, h4, h5, h6, p, span, li, label {
   color: var(--text-dark);
 }
@@ -566,14 +617,4 @@ h1, h2, h3, h4, h5, h6, p, span, li, label {
 
 .brand h1 {
   color: var(--primary-dark);
-}
-
-/* ===== ACCESSIBILITY ===== */
-.btn, .vehicle-card, .lang-btn {
-  cursor: pointer;
-}
-
-:focus-visible {
-  outline: 3px solid var(--primary);
-  outline-offset: 2px;
 }
