@@ -1,4 +1,4 @@
-// ===== CAR FLEX - MODERN JAVASCRIPT =====
+// ===== CAR FLEX - EYE-SOOTHING VERSION =====
 // Complete interactive functionality with Bangla/English language support
 
 // ---------- LANGUAGE DATABASE ----------
@@ -164,19 +164,21 @@ function getServicesForCategory(categoryKey, vehicleType, lang = 'en') {
   
   // Add vehicle-specific services
   const vehicleLower = vehicleType.toLowerCase();
-  const vehicleKey = Object.keys(category).find(key => 
-    vehicleLower.includes(key) || 
-    (key === 'bike' && vehicleLower.includes('bike')) ||
-    (key === 'car' && (vehicleLower.includes('car') || vehicleLower.includes('sedan'))) ||
-    (key === 'sedan' && vehicleLower.includes('sedan')) ||
-    (key === 'microbus' && vehicleLower.includes('microbus')) ||
-    (key === 'coaster' && vehicleLower.includes('coaster')) ||
-    (key === 'truck' && vehicleLower.includes('truck')) ||
-    (key === 'bus' && vehicleLower.includes('bus'))
-  );
   
-  if (vehicleKey && category[vehicleKey]) {
-    services = [...services.slice(0, 6), ...category[vehicleKey], ...services.slice(6, 8)];
+  if (vehicleLower.includes('bike') && category.bike) {
+    services = [...services.slice(0, 5), ...category.bike, ...services.slice(5, 7)];
+  } else if (vehicleLower.includes('car') && category.car) {
+    services = [...services.slice(0, 5), ...category.car, ...services.slice(5, 7)];
+  } else if (vehicleLower.includes('sedan') && category.sedan) {
+    services = [...services.slice(0, 5), ...category.sedan, ...services.slice(5, 7)];
+  } else if (vehicleLower.includes('microbus') && category.microbus) {
+    services = [...services.slice(0, 5), ...category.microbus, ...services.slice(5, 7)];
+  } else if (vehicleLower.includes('coaster') && category.coaster) {
+    services = [...services.slice(0, 5), ...category.coaster, ...services.slice(5, 7)];
+  } else if (vehicleLower.includes('truck') && category.truck) {
+    services = [...services.slice(0, 5), ...category.truck, ...services.slice(5, 7)];
+  } else if (vehicleLower.includes('bus') && category.bus) {
+    services = [...services.slice(0, 5), ...category.bus, ...services.slice(5, 7)];
   }
   
   return services.slice(0, 8); // Show max 8 services
@@ -227,10 +229,6 @@ function attachVehicleListeners() {
       // Update active state
       document.querySelectorAll('.vehicle-card').forEach(c => c.classList.remove('active'));
       this.classList.add('active');
-      
-      // Animate click
-      this.style.transform = 'scale(0.95)';
-      setTimeout(() => this.style.transform = '', 150);
       
       // Re-render services
       renderServiceCategories();
@@ -315,32 +313,13 @@ function setDefaultDate() {
   elements.serviceDate.value = `${yyyy}-${mm}-${dd}`;
 }
 
-// ---------- ANIMATION ON SCROLL ----------
-function setupScrollAnimations() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.style.opacity = '1';
-        entry.target.style.transform = 'translateY(0)';
-      }
-    });
-  }, { threshold: 0.1 });
-
-  document.querySelectorAll('.service-cat, .vehicle-card, .booking-section').forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(20px)';
-    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-    observer.observe(el);
-  });
-}
-
 // ---------- EVENT LISTENERS ----------
 function setupEventListeners() {
   // Language switchers
   elements.langEn.addEventListener('click', () => updateLanguage('en'));
   elements.langBn.addEventListener('click', () => updateLanguage('bn'));
 
-  // Auth buttons - interactive demo
+  // Auth buttons - now at top right
   document.getElementById('loginBtn').addEventListener('click', () => {
     alert(currentLang === 'en' 
       ? '🔐 Login demo — Redirecting to secure login page.' 
@@ -353,7 +332,7 @@ function setupEventListeners() {
       : '✨ সাইন আপ ডেমো — আপনার কার ফ্লেক্স অ্যাকাউন্ট খুলুন।');
   });
 
-  // Description box - character counter
+  // Auto-resize textarea
   elements.descBox.addEventListener('input', function() {
     this.style.height = 'auto';
     this.style.height = (this.scrollHeight) + 'px';
@@ -366,24 +345,10 @@ function init() {
   renderVehicles();
   renderServiceCategories();
   setupEventListeners();
-  setupScrollAnimations();
   
   // Set initial active state
   selectedVehicle = 'Car';
-  
-  // Small delay for animation
-  setTimeout(() => {
-    document.querySelectorAll('.vehicle-card, .service-cat').forEach(el => {
-      el.style.opacity = '1';
-      el.style.transform = 'translateY(0)';
-    });
-  }, 100);
 }
 
 // Start the application
 document.addEventListener('DOMContentLoaded', init);
-
-// ---------- EXPORT FOR MODULE USE (if needed) ----------
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { updateLanguage, selectedVehicle, currentLang };
-}
