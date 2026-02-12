@@ -33,10 +33,11 @@ const langData = {
     authMsg: "🔐 To confirm service, please log in or create an account.",
     loginTxt: "Log in",
     signupTxt: "Sign up",
+    logoutTxt: "Log out",
     footer: "🚗 Car Flex — premium vehicle care. © 2025",
     vehicleTypes: ["Bike", "Car", "Microbus", "Coaster", "Truck", "Bus"],
     cat1: "General Servicing",
-    cat2: "Master Servicing",
+    cat2: "Master Servicing", 
     cat3: "Wash Vehicle",
     priceLabel: "Price"
   },
@@ -53,6 +54,7 @@ const langData = {
     authMsg: "🔐 সেবা নিশ্চিত করতে লগইন বা অ্যাকাউন্ট খুলুন।",
     loginTxt: "লগইন",
     signupTxt: "সাইন আপ",
+    logoutTxt: "লগ আউট",
     footer: "🚗 কার ফ্লেক্স — প্রিমিয়াম গাড়ি যত্ন। © ২০২৫",
     vehicleTypes: ["বাইক", "কার", "মাইক্রোবাস", "কোস্টার", "ট্রাক", "বাস"],
     cat1: "জেনারেল সার্ভিসিং",
@@ -106,44 +108,63 @@ const serviceDatabase = {
   }
 };
 
+// ---------- VEHICLE ICONS ----------
+const vehicleIcons = {
+  Bike: 'fa-motorcycle',
+  Car: 'fa-car',
+  Microbus: 'fa-bus',
+  Coaster: 'fa-bus',
+  Truck: 'fa-truck',
+  Bus: 'fa-bus',
+  'বাইক': 'fa-motorcycle',
+  'কার': 'fa-car',
+  'মাইক্রোবাস': 'fa-bus',
+  'কোস্টার': 'fa-bus',
+  'ট্রাক': 'fa-truck',
+  'বাস': 'fa-bus'
+};
+
 // ---------- STATE MANAGEMENT ----------
 let currentLang = 'en';
 let selectedVehicle = 'Car';
 
-// ---------- DOM ELEMENTS ----------
-const elements = {
-  brandName: document.getElementById('brandName'),
-  viewerMsg: document.getElementById('viewerMsg'),
-  vehicleSecTitle: document.getElementById('vehicleSecTitle'),
-  vehicleBadge: document.getElementById('vehicleBadge'),
-  descBox: document.getElementById('vehicleDesc'),
-  serviceSecTitle: document.getElementById('serviceSecTitle'),
-  serviceBadge: document.getElementById('serviceBadge'),
-  dateLabel: document.getElementById('dateLabel'),
-  timeLabel: document.getElementById('timeLabel'),
-  authMsg: document.getElementById('authMsg'),
-  loginTxt: document.getElementById('loginTxt'),
-  signupTxt: document.getElementById('signupTxt'),
-  footerText: document.getElementById('footerText'),
-  langEn: document.getElementById('langEn'),
-  langBn: document.getElementById('langBn'),
-  vehicleGrid: document.getElementById('vehicleGrid'),
-  serviceContainer: document.getElementById('serviceCatContainer'),
-  serviceDate: document.getElementById('serviceDate'),
-  serviceTime: document.getElementById('serviceTime'),
-  authButtons: document.getElementById('authButtons'),
-  userGreeting: document.getElementById('userGreeting'),
-  userDisplayName: document.getElementById('userDisplayName'),
-  logoutBtn: document.getElementById('logoutBtn'),
-  logoutTxt: document.getElementById('logoutTxt'),
-  confirmBtn: document.getElementById('confirmBookingBtn')
-};
+// ---------- DOM ELEMENTS - Wait for DOM to be ready ----------
+function getDOMElements() {
+  return {
+    brandName: document.getElementById('brandName'),
+    viewerMsg: document.getElementById('viewerMsg'),
+    vehicleSecTitle: document.getElementById('vehicleSecTitle'),
+    vehicleBadge: document.getElementById('vehicleBadge'),
+    descBox: document.getElementById('vehicleDesc'),
+    serviceSecTitle: document.getElementById('serviceSecTitle'),
+    serviceBadge: document.getElementById('serviceBadge'),
+    dateLabel: document.getElementById('dateLabel'),
+    timeLabel: document.getElementById('timeLabel'),
+    authMsg: document.getElementById('authMsg'),
+    loginTxt: document.getElementById('loginTxt'),
+    signupTxt: document.getElementById('signupTxt'),
+    logoutTxt: document.getElementById('logoutTxt'),
+    footerText: document.getElementById('footerText'),
+    langEn: document.getElementById('langEn'),
+    langBn: document.getElementById('langBn'),
+    vehicleGrid: document.getElementById('vehicleGrid'),
+    serviceContainer: document.getElementById('serviceCatContainer'),
+    serviceDate: document.getElementById('serviceDate'),
+    serviceTime: document.getElementById('serviceTime'),
+    authButtons: document.getElementById('authButtons'),
+    userGreeting: document.getElementById('userGreeting'),
+    userDisplayName: document.getElementById('userDisplayName'),
+    logoutBtn: document.getElementById('logoutBtn'),
+    confirmBtn: document.getElementById('confirmBookingBtn')
+  };
+}
 
 // ---------- HELPERS ----------
 const mapToEnglish = (v) => {
   const m = { 'বাইক': 'Bike', 'কার': 'Car', 'মাইক্রোবাস': 'Microbus', 'কোস্টার': 'Coaster', 'ট্রাক': 'Truck', 'বাস': 'Bus' };
   return m[v] || v;
 };
+
 const mapToBangla = (v) => {
   const m = { 'Bike': 'বাইক', 'Car': 'কার', 'Microbus': 'মাইক্রোবাস', 'Coaster': 'কোস্টার', 'Truck': 'ট্রাক', 'Bus': 'বাস' };
   return m[v] || v;
@@ -153,6 +174,7 @@ function getServicesForVehicle(type, cat) {
   const v = serviceDatabase[type] || serviceDatabase.Car;
   return v[cat] || [];
 }
+
 function getPriceForVehicle(type, cat) {
   const p = priceDatabase[type] || priceDatabase.Car;
   return p[cat] || 0;
@@ -160,19 +182,24 @@ function getPriceForVehicle(type, cat) {
 
 // ---------- RENDER LOGIC ----------
 function renderVehicles() {
+  const elements = getDOMElements();
+  if (!elements.vehicleGrid) return;
+  
   const types = langData[currentLang].vehicleTypes;
   let html = '';
+  
   types.forEach(v => {
-    let icon = 'fa-car';
-    if (v.includes('Bike') || v.includes('বাইক')) icon = 'fa-motorcycle';
-    else if (v.includes('Bus') || v.includes('Micro') || v.includes('Coaster')) icon = 'fa-bus';
-    else if (v.includes('Truck')) icon = 'fa-truck';
-    
+    const icon = vehicleIcons[v] || 'fa-car';
     const active = (currentLang === 'en' ? selectedVehicle === v : selectedVehicle === mapToEnglish(v));
-    html += `<div class="vehicle-card ${active ? 'active' : ''}" data-vehicle="${v}"><i class="fas ${icon}"></i><span>${v}</span></div>`;
+    html += `<div class="vehicle-card ${active ? 'active' : ''}" data-vehicle="${v}">
+      <i class="fas ${icon}"></i>
+      <span>${v}</span>
+    </div>`;
   });
+  
   elements.vehicleGrid.innerHTML = html;
   
+  // Add event listeners
   document.querySelectorAll('.vehicle-card').forEach(c => {
     c.addEventListener('click', function() {
       const raw = this.dataset.vehicle;
@@ -184,6 +211,9 @@ function renderVehicles() {
 }
 
 function renderServiceCategories() {
+  const elements = getDOMElements();
+  if (!elements.serviceContainer) return;
+  
   const cats = [
     { key: 'general', name: langData[currentLang].cat1, icon: 'fa-tools' },
     { key: 'master', name: langData[currentLang].cat2, icon: 'fa-cogs' },
@@ -193,80 +223,109 @@ function renderServiceCategories() {
   let html = '';
   cats.forEach(cat => {
     const items = getServicesForVehicle(selectedVehicle, cat.key);
-    const price = getPriceForVehicle(selectedVehicle, cat.key).toLocaleString('en-BD');
+    const price = getPriceForVehicle(selectedVehicle, cat.key);
     const list = items.map(i => `<li><i class="fas fa-check-circle"></i> ${i}</li>`).join('');
     
     html += `<div class="service-cat">
-      <h3><i class="fas ${cat.icon}"></i> ${cat.name}</h3>
-      <ul class="service-list">${list}</ul>
-      <div class="price-tag"><span>৳${price} <small>BDT</small></span></div>
+      <h3>
+        <i class="fas ${cat.icon}"></i> 
+        ${cat.name}
+        <span class="vehicle-type-badge">
+          <i class="fas ${vehicleIcons[selectedVehicle] || 'fa-car'}"></i>
+          ${currentLang === 'en' ? selectedVehicle : mapToBangla(selectedVehicle)}
+        </span>
+      </h3>
+      <ul class="service-list">${list || '<li>No services listed</li>'}</ul>
+      <div class="price-tag">
+        <span class="price-label"><i class="fas fa-tag"></i> ${langData[currentLang].priceLabel}:</span>
+        <span class="price-amount">৳${price.toLocaleString('en-BD')} <small>BDT</small></span>
+      </div>
     </div>`;
   });
+  
   elements.serviceContainer.innerHTML = html;
 }
 
 // ---------- UI UPDATES ----------
 function updateLanguage(lang) {
   currentLang = lang;
+  const elements = getDOMElements();
   const d = langData[lang];
-  elements.brandName.innerText = d.brand;
-  elements.viewerMsg.innerText = d.viewerMsg;
-  elements.vehicleSecTitle.innerText = d.vehicleSec;
-  elements.vehicleBadge.innerText = d.vehicleBadge;
-  elements.descBox.placeholder = d.descPlaceholder;
-  elements.serviceSecTitle.innerText = d.serviceSec;
-  elements.serviceBadge.innerText = d.serviceBadge;
-  elements.dateLabel.innerHTML = `<i class="far fa-calendar-alt"></i> ${d.dateLabel}`;
-  elements.timeLabel.innerHTML = `<i class="far fa-clock"></i> ${d.timeLabel}`;
-  elements.authMsg.innerText = d.authMsg;
-  elements.loginTxt.innerText = d.loginTxt;
-  elements.signupTxt.innerText = d.signupTxt;
-  elements.footerText.innerText = d.footer;
-  if(elements.logoutTxt) elements.logoutTxt.innerText = lang === 'en' ? 'Log out' : 'লগ আউট';
   
-  elements.langEn.classList.toggle('active', lang === 'en');
-  elements.langBn.classList.toggle('active', lang === 'bn');
+  if (elements.brandName) elements.brandName.innerText = d.brand;
+  if (elements.viewerMsg) elements.viewerMsg.innerText = d.viewerMsg;
+  if (elements.vehicleSecTitle) elements.vehicleSecTitle.innerText = d.vehicleSec;
+  if (elements.vehicleBadge) elements.vehicleBadge.innerText = d.vehicleBadge;
+  if (elements.descBox) elements.descBox.placeholder = d.descPlaceholder;
+  if (elements.serviceSecTitle) elements.serviceSecTitle.innerText = d.serviceSec;
+  if (elements.serviceBadge) elements.serviceBadge.innerText = d.serviceBadge;
+  if (elements.dateLabel) elements.dateLabel.innerHTML = `<i class="far fa-calendar-alt"></i> ${d.dateLabel}`;
+  if (elements.timeLabel) elements.timeLabel.innerHTML = `<i class="far fa-clock"></i> ${d.timeLabel}`;
+  if (elements.authMsg) elements.authMsg.innerText = d.authMsg;
+  if (elements.loginTxt) elements.loginTxt.innerText = d.loginTxt;
+  if (elements.signupTxt) elements.signupTxt.innerText = d.signupTxt;
+  if (elements.logoutTxt) elements.logoutTxt.innerText = d.logoutTxt;
+  if (elements.footerText) elements.footerText.innerText = d.footer;
+  
+  if (elements.langEn) elements.langEn.classList.toggle('active', lang === 'en');
+  if (elements.langBn) elements.langBn.classList.toggle('active', lang === 'bn');
   
   renderVehicles();
   renderServiceCategories();
 }
 
 function updateAuthUI(user) {
+  const elements = getDOMElements();
+  if (!elements.authButtons || !elements.userGreeting) return;
+  
   if (user) {
     elements.authButtons.style.display = 'none';
     elements.userGreeting.style.display = 'flex';
-    elements.userDisplayName.innerHTML = `<i class="fas fa-user-circle"></i> ${user.displayName || user.email}`;
+    if (elements.userDisplayName) {
+      elements.userDisplayName.innerHTML = `<i class="fas fa-user-circle"></i> ${user.displayName || user.email}`;
+    }
   } else {
     elements.authButtons.style.display = 'flex';
     elements.userGreeting.style.display = 'none';
   }
 }
 
-// ---------- AUTH ACTIONS (Google Sign in for Index page) ----------
+// ---------- AUTH ACTIONS ----------
 function signInWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider)
-    .catch(error => {
-      console.error("Full error object:", error);
-      alert(`Sign‑in failed: ${error.message} (Code: ${error.code})`);
-    });
+  auth.signInWithPopup(provider).catch(e => {
+    console.error(e);
+    alert('Sign in failed: ' + e.message);
+  });
+}
+
+function signOut() {
+  auth.signOut();
 }
 
 // ---------- BOOKING ----------
 async function confirmBooking() {
   const user = auth.currentUser;
-  if (!user) { signInWithGoogle(); return; }
+  const elements = getDOMElements();
   
-  const date = elements.serviceDate.value;
-  if (!date) return alert(currentLang === 'en' ? 'Select date' : 'তারিখ নির্বাচন করুন');
+  if (!user) {
+    signInWithGoogle();
+    return;
+  }
+  
+  const date = elements.serviceDate?.value;
+  if (!date) {
+    alert(currentLang === 'en' ? 'Please select a date' : 'তারিখ নির্বাচন করুন');
+    return;
+  }
 
   const booking = {
     userId: user.uid,
     email: user.email,
     vehicle: selectedVehicle,
-    desc: elements.descBox.value,
+    desc: elements.descBox?.value || '',
     date: date,
-    time: elements.serviceTime.value,
+    time: elements.serviceTime?.value || '09:00',
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
   };
 
@@ -281,19 +340,52 @@ async function confirmBooking() {
 
 // ---------- INIT ----------
 function init() {
-  const today = new Date();
-  today.setDate(today.getDate() + 2);
-  elements.serviceDate.value = today.toISOString().split('T')[0];
+  console.log('Car Flex initialized');
   
-  elements.langEn.addEventListener('click', () => updateLanguage('en'));
-  elements.langBn.addEventListener('click', () => updateLanguage('bn'));
-  if (elements.logoutBtn) elements.logoutBtn.addEventListener('click', signOut);
-  if (elements.confirmBtn) elements.confirmBtn.addEventListener('click', confirmBooking);
-  
-  renderVehicles();
-  renderServiceCategories();
-  
-  auth.onAuthStateChanged(user => updateAuthUI(user));
+  // Wait for DOM to be fully loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setup);
+  } else {
+    setup();
+  }
 }
 
-document.addEventListener('DOMContentLoaded', init);
+function setup() {
+  const elements = getDOMElements();
+  
+  // Set default date
+  if (elements.serviceDate) {
+    const today = new Date();
+    today.setDate(today.getDate() + 2);
+    elements.serviceDate.value = today.toISOString().split('T')[0];
+  }
+  
+  // Language switchers
+  if (elements.langEn) {
+    elements.langEn.addEventListener('click', () => updateLanguage('en'));
+  }
+  if (elements.langBn) {
+    elements.langBn.addEventListener('click', () => updateLanguage('bn'));
+  }
+  
+  // Logout button
+  if (elements.logoutBtn) {
+    elements.logoutBtn.addEventListener('click', signOut);
+  }
+  
+  // Confirm booking button
+  if (elements.confirmBtn) {
+    elements.confirmBtn.addEventListener('click', confirmBooking);
+  }
+  
+  // Initial render
+  updateLanguage('en');
+  
+  // Auth state observer
+  auth.onAuthStateChanged(user => {
+    updateAuthUI(user);
+  });
+}
+
+// Start the app
+init();
