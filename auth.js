@@ -1,16 +1,16 @@
 // ===== auth.js – Firebase Authentication for Login/Signup Pages =====
 
-// Firebase config (use YOUR actual config)
+// Use the SAME Firebase config as script.js
 const firebaseConfig = {
-  apiKey: "AIzaSyA2tR1NPiNSe-xj6PBo5jvunnaHhgR8SKU",
-  authDomain: "carflex-49991.firebaseapp.com",
-  projectId: "carflex-49991",
-  storageBucket: "carflex-49991.firebasestorage.app",
-  messagingSenderId: "208285784821",
-  appId: "1:208285784821:web:7e5b8a2fca29463ca043bc"
+  apiKey: "AIzaSyB9OEjBRYc9WeqJ5yUcA9BOP8Ju2PIMb-c",
+  authDomain: "carflex-8dd99.firebaseapp.com",
+  projectId: "carflex-8dd99",
+  storageBucket: "carflex-8dd99.firebasestorage.app",
+  messagingSenderId: "357221879980",
+  appId: "1:357221879980:web:ab4d0240083e63f3530f09"
 };
 
-// Initialize Firebase (compat version)
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
@@ -19,11 +19,11 @@ function signInWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider)
     .then(() => {
-      window.location.href = 'index.html'; // redirect after success
+      window.location.href = 'index.html';
     })
     .catch(error => {
       console.error(error);
-      alert('Google sign-in failed. Please try again.');
+      alert('Sign in failed. Please try again.');
     });
 }
 
@@ -51,7 +51,7 @@ function signInWithEmail(email, password) {
     });
 }
 
-// ---------- PASSWORD RESET (optional) ----------
+// ---------- PASSWORD RESET ----------
 function resetPassword(email) {
   auth.sendPasswordResetEmail(email)
     .then(() => {
