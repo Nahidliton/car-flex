@@ -1,6 +1,5 @@
-// ===== script.js – Main Application Logic =====
+// ===== script.js – Main Logic for index.html =====
 
-// 1. Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyB9OEjBRYc9WeqJ5yUcA9BOP8Ju2PIMb-c",
   authDomain: "carflex-8dd99.firebaseapp.com",
@@ -10,17 +9,16 @@ const firebaseConfig = {
   appId: "1:357221879980:web:ab4d0240083e63f3530f09"
 };
 
-// 2. Initialize Firebase (Compat version)
-// CHECK: Only initialize if not already initialized
+// 1. Initialize Firebase (Check if already initialized)
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
-// 3. Define Auth and DB exactly ONCE
+// 2. Define Auth and DB exactly ONCE
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// ---------- LANGUAGE DATABASE (FULL) ----------
+// ---------- LANGUAGE DATABASE ----------
 const langData = {
   en: {
     brand: "Car Flex",
@@ -64,7 +62,7 @@ const langData = {
   }
 };
 
-// ---------- PRICE DATABASE (BDT) ----------
+// ---------- PRICE DATABASE ----------
 const priceDatabase = {
   Bike: { general: 2000, master: 3500, wash: 300 },
   Car: { general: 5000, master: 8500, wash: 500 },
@@ -74,37 +72,37 @@ const priceDatabase = {
   Bus: { general: 8000, master: 15000, wash: 1200 }
 };
 
-// ---------- SERVICE DATABASE (Vehicle Specific) ----------
+// ---------- SERVICE DATABASE ----------
 const serviceDatabase = {
   Bike: {
-    general: ['Engine oil change (semi-synthetic)', 'Air filter cleaning', 'Spark plug inspection', 'Chain cleaning & lubrication', 'Brake pad adjustment', 'Clutch cable tuning', 'Tyre pressure check', 'Battery terminal cleaning'],
-    master: ['Full engine diagnostics', 'Engine oil & filter change', 'Valve clearance adjustment', 'Carburetor/Injector cleaning', 'Brake pad replacement', 'Chain & sprocket check', 'Wheel alignment', 'Coolant top-up'],
-    wash: ['Gentle foam wash', 'Chain degreasing', 'Alloy wheel cleaning', 'Dashboard polish', 'Silencer pipe cleaning', 'Tyre shine']
+    general: ['Engine oil change', 'Air filter cleaning', 'Spark plug check', 'Chain lube', 'Brake adjust', 'Tyre pressure'],
+    master: ['Full diagnostics', 'Engine oil & filter', 'Valve adjustment', 'Carburetor clean', 'Brake pad replace', 'Wheel alignment'],
+    wash: ['Foam wash', 'Chain degrease', 'Polish', 'Tyre shine']
   },
   Car: {
-    general: ['Engine oil change (semi-synthetic)', 'Oil filter replacement', 'Air filter cleaning', 'AC gas check', 'Brake fluid top-up', 'Wiper blade inspection', 'Battery health check', 'Tyre rotation'],
-    master: ['Full engine scan (ECU)', 'Engine oil & filter (synthetic)', 'Gear oil replacement', 'Coolant flush & refill', 'Brake pad/shoe inspection', 'Spark plug replacement', 'Fuel injector cleaning', 'Wheel alignment & balancing'],
-    wash: ['Exterior foam wash', 'Interior vacuum cleaning', 'Dashboard polish', 'Glass cleaning', 'Underbody wash', 'Tyre dressing', 'Door jambs cleaning']
+    general: ['Engine oil change', 'Oil filter', 'Air filter clean', 'AC check', 'Brake fluid', 'Wiper check', 'Battery check'],
+    master: ['Full ECU scan', 'Engine oil synthetic', 'Gear oil', 'Coolant flush', 'Spark plugs', 'Injector clean', 'Wheel balance'],
+    wash: ['Exterior foam', 'Interior vacuum', 'Dashboard polish', 'Glass clean', 'Underbody wash']
   },
   Microbus: {
-    general: ['Engine oil change (diesel)', 'Oil & fuel filter check', 'Air filter cleaning', 'Brake system inspection', 'Power steering fluid check', 'AC vent cleaning', 'Sliding door roller lube', 'Battery water top-up'],
-    master: ['Full engine diagnostics', 'Engine oil & all filters', 'Gear oil replacement', 'Differential oil check', 'Brake shoe/pad replacement', 'AC gas refill', 'Propeller shaft lubrication', 'Coolant replacement'],
-    wash: ['High-pressure foam wash', 'Interior deep vacuum', 'Roof rack cleaning', 'Seat upholstery clean', 'Window track cleaning', 'Underbody rinse', 'Tyre shine']
+    general: ['Engine oil (diesel)', 'Fuel filter check', 'Air filter', 'Brake check', 'Power steering fluid', 'AC vent clean'],
+    master: ['Full diagnostics', 'All filters change', 'Gear oil', 'Brake shoe replace', 'AC gas', 'Coolant replace'],
+    wash: ['High-pressure wash', 'Interior vacuum', 'Roof clean', 'Seat clean', 'Underbody rinse']
   },
   Coaster: {
-    general: ['Engine oil change (diesel)', 'Fuel filter replacement', 'Air filter cleaning', 'Brake fluid check', 'Power steering fluid top-up', 'AC filter cleaning', 'Battery terminals clean', 'Light & horn test'],
-    master: ['Complete engine tuning', 'Oil & all filters change', 'Gearbox oil replacement', 'Differential oil change', 'Brake system overhaul', 'AC performance check', 'Radiator flush', 'Suspension check'],
-    wash: ['Full body foam wash', 'Interior shampoo', 'Window cleaning', 'Floor mat pressure wash', 'Engine bay degrease', 'Tyre polishing']
+    general: ['Engine oil', 'Fuel filter', 'Air filter', 'Brake fluid', 'Battery clean', 'Light test'],
+    master: ['Engine tuning', 'All filters', 'Gearbox oil', 'Brake overhaul', 'AC check', 'Radiator flush'],
+    wash: ['Full body wash', 'Interior shampoo', 'Window clean', 'Engine bay degrease']
   },
   Truck: {
-    general: ['Engine oil change (diesel)', 'Fuel filter water drain', 'Air filter cleaning', 'Brake adjustment', 'Clutch fluid check', 'Leaf spring inspection', 'Battery load test', 'Tyre pressure check'],
-    master: ['Full engine diagnostics', 'Engine oil & all filters', 'Gearbox oil change', 'Differential oil service', 'Brake shoe replacement', 'Clutch plate check', 'DPF cleaning', 'Coolant replacement'],
-    wash: ['High-pressure truck wash', 'Trailer cleaning', 'Underbody high jet', 'Mud flap cleaning', 'Cabin interior clean', 'Wheel rim cleaning']
+    general: ['Engine oil', 'Fuel filter drain', 'Air filter', 'Brake adjust', 'Clutch fluid', 'Tyre check'],
+    master: ['Engine diagnostics', 'All filters', 'Gearbox oil', 'Differential oil', 'Clutch check', 'Coolant'],
+    wash: ['Truck wash', 'Trailer clean', 'Underbody jet', 'Cabin clean']
   },
   Bus: {
-    general: ['Engine oil change', 'Fuel filter cleaning', 'Air filter service', 'Brake system check', 'Power steering fluid', 'AC vent cleaning', 'Passenger seat check', 'Battery maintenance'],
-    master: ['Engine tuning & scan', 'Oil & all filters replace', 'Gearbox oil service', 'Differential oil change', 'Brake shoe replacement', 'Air suspension check', 'AC gas refill', 'Coolant flush'],
-    wash: ['Full bus exterior wash', 'Interior deep cleaning', 'Seat upholstery wash', 'Window cleaning', 'Floor scrubbing', 'Tyre dressing']
+    general: ['Engine oil', 'Fuel filter', 'Air filter', 'Brake check', 'Power steering', 'AC vent clean'],
+    master: ['Engine tuning', 'All filters', 'Gearbox oil', 'Brake shoe', 'Air suspension check', 'AC gas'],
+    wash: ['Exterior wash', 'Interior clean', 'Seat wash', 'Floor scrub']
   }
 };
 
@@ -133,7 +131,6 @@ const elements = {
   serviceContainer: document.getElementById('serviceCatContainer'),
   serviceDate: document.getElementById('serviceDate'),
   serviceTime: document.getElementById('serviceTime'),
-  // new elements
   authButtons: document.getElementById('authButtons'),
   userGreeting: document.getElementById('userGreeting'),
   userDisplayName: document.getElementById('userDisplayName'),
@@ -142,142 +139,76 @@ const elements = {
   confirmBtn: document.getElementById('confirmBookingBtn')
 };
 
-// ---------- UTILITY FUNCTIONS ----------
-const mapToEnglish = (bnVehicle) => {
-  const mapping = {
-    'বাইক': 'Bike', 'কার': 'Car', 'মাইক্রোবাস': 'Microbus',
-    'কোস্টার': 'Coaster', 'ট্রাক': 'Truck', 'বাস': 'Bus'
-  };
-  return mapping[bnVehicle] || bnVehicle;
+// ---------- HELPERS ----------
+const mapToEnglish = (v) => {
+  const m = { 'বাইক': 'Bike', 'কার': 'Car', 'মাইক্রোবাস': 'Microbus', 'কোস্টার': 'Coaster', 'ট্রাক': 'Truck', 'বাস': 'Bus' };
+  return m[v] || v;
+};
+const mapToBangla = (v) => {
+  const m = { 'Bike': 'বাইক', 'Car': 'কার', 'Microbus': 'মাইক্রোবাস', 'Coaster': 'কোস্টার', 'Truck': 'ট্রাক', 'Bus': 'বাস' };
+  return m[v] || v;
 };
 
-const mapToBangla = (enVehicle) => {
-  const mapping = {
-    'Bike': 'বাইক', 'Car': 'কার', 'Microbus': 'মাইক্রোবাস',
-    'Coaster': 'কোস্টার', 'Truck': 'ট্রাক', 'Bus': 'বাস'
-  };
-  return mapping[enVehicle] || enVehicle;
-};
-
-// ---------- GET VEHICLE SPECIFIC SERVICES ----------
-function getServicesForVehicle(vehicleType, categoryKey) {
-  const vehicle = serviceDatabase[vehicleType] || serviceDatabase.Car;
-  if (categoryKey === 'general') return vehicle.general || serviceDatabase.Car.general;
-  if (categoryKey === 'master') return vehicle.master || serviceDatabase.Car.master;
-  if (categoryKey === 'wash') return vehicle.wash || serviceDatabase.Car.wash;
-  return [];
+function getServicesForVehicle(type, cat) {
+  const v = serviceDatabase[type] || serviceDatabase.Car;
+  return v[cat] || [];
+}
+function getPriceForVehicle(type, cat) {
+  const p = priceDatabase[type] || priceDatabase.Car;
+  return p[cat] || 0;
 }
 
-// ---------- GET PRICE FOR VEHICLE & SERVICE ----------
-function getPriceForVehicle(vehicleType, categoryKey) {
-  const vehiclePrices = priceDatabase[vehicleType] || priceDatabase.Car;
-  if (categoryKey === 'general') return vehiclePrices.general;
-  if (categoryKey === 'master') return vehiclePrices.master;
-  if (categoryKey === 'wash') return vehiclePrices.wash;
-  return 0;
-}
-
-// ---------- RENDER VEHICLES ----------
+// ---------- RENDER LOGIC ----------
 function renderVehicles() {
   const types = langData[currentLang].vehicleTypes;
   let html = '';
-  
   types.forEach(v => {
     let icon = 'fa-car';
     if (v.includes('Bike') || v.includes('বাইক')) icon = 'fa-motorcycle';
-    else if (v.includes('Car') || v.includes('কার')) icon = 'fa-car';
-    else if (v.includes('Microbus') || v.includes('মাইক্রোবাস')) icon = 'fa-bus';
-    else if (v.includes('Coaster') || v.includes('কোস্টার')) icon = 'fa-bus';
-    else if (v.includes('Truck') || v.includes('ট্রাক')) icon = 'fa-truck';
-    else if (v.includes('Bus') || v.includes('বাস')) icon = 'fa-bus';
+    else if (v.includes('Bus') || v.includes('Micro') || v.includes('Coaster')) icon = 'fa-bus';
+    else if (v.includes('Truck')) icon = 'fa-truck';
     
-    const isActive = currentLang === 'en' 
-      ? selectedVehicle === v
-      : selectedVehicle === mapToEnglish(v);
-    
-    html += `<div class="vehicle-card ${isActive ? 'active' : ''}" data-vehicle="${v}">
-                <i class="fas ${icon}"></i>
-                <span>${v}</span>
-              </div>`;
+    const active = (currentLang === 'en' ? selectedVehicle === v : selectedVehicle === mapToEnglish(v));
+    html += `<div class="vehicle-card ${active ? 'active' : ''}" data-vehicle="${v}"><i class="fas ${icon}"></i><span>${v}</span></div>`;
   });
-  
   elements.vehicleGrid.innerHTML = html;
-  attachVehicleListeners();
-}
-
-// ---------- ATTACH VEHICLE LISTENERS ----------
-function attachVehicleListeners() {
-  document.querySelectorAll('.vehicle-card').forEach(card => {
-    card.addEventListener('click', function() {
-      const vehRaw = this.dataset.vehicle;
-      
-      if (currentLang === 'en') {
-        selectedVehicle = vehRaw;
-      } else {
-        selectedVehicle = mapToEnglish(vehRaw);
-      }
-      
-      document.querySelectorAll('.vehicle-card').forEach(c => c.classList.remove('active'));
-      this.classList.add('active');
-      
+  
+  document.querySelectorAll('.vehicle-card').forEach(c => {
+    c.addEventListener('click', function() {
+      const raw = this.dataset.vehicle;
+      selectedVehicle = currentLang === 'en' ? raw : mapToEnglish(raw);
+      renderVehicles();
       renderServiceCategories();
     });
   });
 }
 
-// ---------- RENDER SERVICE CATEGORIES WITH PRICES ----------
 function renderServiceCategories() {
-  const categories = [
+  const cats = [
     { key: 'general', name: langData[currentLang].cat1, icon: 'fa-tools' },
     { key: 'master', name: langData[currentLang].cat2, icon: 'fa-cogs' },
     { key: 'wash', name: langData[currentLang].cat3, icon: 'fa-water' }
   ];
-
-  let html = '';
-  const vehicleDisplay = currentLang === 'en' 
-    ? selectedVehicle 
-    : mapToBangla(selectedVehicle);
   
-  const priceLabel = langData[currentLang].priceLabel;
-
-  categories.forEach(cat => {
-    const points = getServicesForVehicle(selectedVehicle, cat.key);
-    const price = getPriceForVehicle(selectedVehicle, cat.key);
-    const formattedPrice = price.toLocaleString('en-BD');
+  let html = '';
+  cats.forEach(cat => {
+    const items = getServicesForVehicle(selectedVehicle, cat.key);
+    const price = getPriceForVehicle(selectedVehicle, cat.key).toLocaleString('en-BD');
+    const list = items.map(i => `<li><i class="fas fa-check-circle"></i> ${i}</li>`).join('');
     
-    const listItems = points.map(p => 
-      `<li><i class="fas fa-check-circle"></i> ${p}</li>`
-    ).join('');
-
     html += `<div class="service-cat">
-              <h3>
-                <i class="fas ${cat.icon}"></i> 
-                ${cat.name}
-                <span class="vehicle-type-badge">
-                  <i class="fas fa-tag"></i> ${vehicleDisplay}
-                </span>
-              </h3>
-              <ul class="service-list">${listItems}</ul>
-              <div class="price-tag">
-                <span class="price-label">
-                  <i class="fas fa-bangladeshi-taka-sign"></i> ${priceLabel}:
-                </span>
-                <span class="price-amount">
-                  ৳${formattedPrice}
-                  <small>BDT</small>
-                </span>
-              </div>
-            </div>`;
+      <h3><i class="fas ${cat.icon}"></i> ${cat.name}</h3>
+      <ul class="service-list">${list}</ul>
+      <div class="price-tag"><span>৳${price} <small>BDT</small></span></div>
+    </div>`;
   });
-
   elements.serviceContainer.innerHTML = html;
 }
 
-// ---------- UPDATE LANGUAGE UI ----------
+// ---------- UI UPDATES ----------
 function updateLanguage(lang) {
   currentLang = lang;
   const d = langData[lang];
-
   elements.brandName.innerText = d.brand;
   elements.viewerMsg.innerText = d.viewerMsg;
   elements.vehicleSecTitle.innerText = d.vehicleSec;
@@ -291,32 +222,15 @@ function updateLanguage(lang) {
   elements.loginTxt.innerText = d.loginTxt;
   elements.signupTxt.innerText = d.signupTxt;
   elements.footerText.innerText = d.footer;
-  if (elements.logoutTxt) {
-    elements.logoutTxt.innerText = lang === 'en' ? 'Log out' : 'লগ আউট';
-  }
-
+  if(elements.logoutTxt) elements.logoutTxt.innerText = lang === 'en' ? 'Log out' : 'লগ আউট';
+  
   elements.langEn.classList.toggle('active', lang === 'en');
   elements.langBn.classList.toggle('active', lang === 'bn');
-
+  
   renderVehicles();
   renderServiceCategories();
 }
 
-// ---------- SET DEFAULT DATE ----------
-function setDefaultDate() {
-  const today = new Date();
-  today.setDate(today.getDate() + 2);
-  const yyyy = today.getFullYear();
-  let mm = today.getMonth() + 1;
-  let dd = today.getDate();
-  
-  if (mm < 10) mm = '0' + mm;
-  if (dd < 10) dd = '0' + dd;
-  
-  elements.serviceDate.value = `${yyyy}-${mm}-${dd}`;
-}
-
-// ---------- FIREBASE AUTH UI UPDATE ----------
 function updateAuthUI(user) {
   if (user) {
     elements.authButtons.style.display = 'none';
@@ -328,112 +242,58 @@ function updateAuthUI(user) {
   }
 }
 
-// ---------- SIGN IN WITH GOOGLE ----------
-// (Duplicate helper for index.html quick access)
+// ---------- AUTH ACTIONS (Google Sign in for Index page) ----------
 function signInWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider)
-    .catch(error => {
-      console.error('Sign in error:', error);
-      alert(currentLang === 'en' ? 'Sign in failed. Please try again.' : 'সাইন ইন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।');
-    });
+  auth.signInWithPopup(provider).catch(e => alert(e.message));
 }
 
-// ---------- SIGN OUT ----------
 function signOut() {
-  auth.signOut().catch(error => {
-    console.error('Sign out error:', error);
-  });
+  auth.signOut();
 }
 
-// ---------- CONFIRM BOOKING ----------
+// ---------- BOOKING ----------
 async function confirmBooking() {
   const user = auth.currentUser;
-  if (!user) {
-    signInWithGoogle();
-    return;
-  }
-
-  const vehicle = selectedVehicle;
-  const description = elements.descBox.value.trim() || '';
+  if (!user) { signInWithGoogle(); return; }
+  
   const date = elements.serviceDate.value;
-  const time = elements.serviceTime.value;
-
-  if (!date) {
-    alert(currentLang === 'en' ? 'Please select a service date.' : 'সেবার তারিখ নির্বাচন করুন।');
-    return;
-  }
-
-  const categories = [
-    { key: 'general', name: langData[currentLang].cat1 },
-    { key: 'master', name: langData[currentLang].cat2 },
-    { key: 'wash', name: langData[currentLang].cat3 }
-  ];
-
-  const servicesBooked = categories.map(cat => ({
-    category: cat.key,
-    name: cat.name,
-    price: getPriceForVehicle(vehicle, cat.key),
-    items: getServicesForVehicle(vehicle, cat.key)
-  }));
+  if (!date) return alert(currentLang === 'en' ? 'Select date' : 'তারিখ নির্বাচন করুন');
 
   const booking = {
     userId: user.uid,
-    userEmail: user.email,
-    userName: user.displayName || '',
-    vehicle,
-    description,
-    date,
-    time,
-    services: servicesBooked,
+    email: user.email,
+    vehicle: selectedVehicle,
+    desc: elements.descBox.value,
+    date: date,
+    time: elements.serviceTime.value,
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
   };
 
   try {
     await db.collection('bookings').add(booking);
-    alert(currentLang === 'en' 
-      ? '✅ Booking confirmed! Thank you for choosing Car Flex.' 
-      : '✅ বুকিং নিশ্চিত হয়েছে! কার ফ্লেক্স বেছে নেওয়ার জন্য ধন্যবাদ।');
-  } catch (error) {
-    console.error('Booking error:', error);
-    alert(currentLang === 'en' 
-      ? 'Booking failed. Please try again.' 
-      : 'বুকিং ব্যর্থ হয়েছে। আবার চেষ্টা করুন।');
+    alert('✅ Booking Confirmed!');
+  } catch (e) {
+    console.error(e);
+    alert('Booking Failed: ' + e.message);
   }
 }
 
-// ---------- EVENT LISTENERS ----------
-function setupEventListeners() {
+// ---------- INIT ----------
+function init() {
+  const today = new Date();
+  today.setDate(today.getDate() + 2);
+  elements.serviceDate.value = today.toISOString().split('T')[0];
+  
   elements.langEn.addEventListener('click', () => updateLanguage('en'));
   elements.langBn.addEventListener('click', () => updateLanguage('bn'));
-
-  // Logout button
-  if (elements.logoutBtn) {
-    elements.logoutBtn.addEventListener('click', signOut);
-  }
-
-  // Confirm booking button
-  elements.confirmBtn.addEventListener('click', confirmBooking);
-
-  // Auto-resize textarea
-  elements.descBox.addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = (this.scrollHeight) + 'px';
-  });
-}
-
-// ---------- INITIALIZE APP ----------
-function init() {
-  setDefaultDate();
+  if (elements.logoutBtn) elements.logoutBtn.addEventListener('click', signOut);
+  if (elements.confirmBtn) elements.confirmBtn.addEventListener('click', confirmBooking);
+  
   renderVehicles();
   renderServiceCategories();
-  setupEventListeners();
-
-  auth.onAuthStateChanged(user => {
-    updateAuthUI(user);
-  });
-
-  selectedVehicle = 'Car';
+  
+  auth.onAuthStateChanged(user => updateAuthUI(user));
 }
 
 document.addEventListener('DOMContentLoaded', init);

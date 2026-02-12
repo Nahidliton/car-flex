@@ -1,4 +1,4 @@
-// ===== auth.js – Firebase Authentication for Login/Signup Pages =====
+// ===== auth.js – ONLY for Login and Signup pages =====
 
 const firebaseConfig = {
   apiKey: "AIzaSyB9OEjBRYc9WeqJ5yUcA9BOP8Ju2PIMb-c",
@@ -9,10 +9,12 @@ const firebaseConfig = {
   appId: "1:357221879980:web:ab4d0240083e63f3530f09"
 };
 
-// Initialize Firebase only if it hasn't been initialized yet
+// 1. Initialize Firebase (Check if already initialized to prevent errors)
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
+
+// 2. Define Auth once
 const auth = firebase.auth();
 
 // ---------- GOOGLE SIGN-IN ----------
@@ -20,7 +22,6 @@ function signInWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider)
     .then((result) => {
-      // Successful login
       console.log("User:", result.user);
       window.location.href = 'index.html';
     })
@@ -30,7 +31,7 @@ function signInWithGoogle() {
     });
 }
 
-// ---------- EMAIL/PASSWORD SIGN-UP ----------
+// ---------- EMAIL SIGN-UP ----------
 function signUpWithEmail(email, password) {
   auth.createUserWithEmailAndPassword(email, password)
     .then(() => {
@@ -42,7 +43,7 @@ function signUpWithEmail(email, password) {
     });
 }
 
-// ---------- EMAIL/PASSWORD SIGN-IN ----------
+// ---------- EMAIL SIGN-IN ----------
 function signInWithEmail(email, password) {
   auth.signInWithEmailAndPassword(email, password)
     .then(() => {
