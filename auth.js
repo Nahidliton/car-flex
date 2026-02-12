@@ -22,12 +22,12 @@ function signInWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider)
     .then((result) => {
-      console.log("User:", result.user);
       window.location.href = 'index.html';
     })
     .catch(error => {
-      console.error("Error:", error);
-      alert('Sign in failed: ' + error.message);
+      // 🔥 NOW YOU WILL SEE THE REAL ERROR CODE
+      console.error("FULL ERROR OBJECT:", error);
+      alert(`Sign-in failed!\n\nError Code: ${error.code}\nMessage: ${error.message}`);
     });
 }
 
