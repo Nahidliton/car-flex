@@ -245,11 +245,11 @@ function updateAuthUI(user) {
 // ---------- AUTH ACTIONS (Google Sign in for Index page) ----------
 function signInWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch(e => alert(e.message));
-}
-
-function signOut() {
-  auth.signOut();
+  auth.signInWithPopup(provider)
+    .catch(error => {
+      console.error("Full error object:", error);
+      alert(`Sign‑in failed: ${error.message} (Code: ${error.code})`);
+    });
 }
 
 // ---------- BOOKING ----------
