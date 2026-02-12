@@ -1,23 +1,22 @@
-// Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+// ===== script.js – Main Application Logic =====
 
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyB9OEjBRYc9WeqJ5yUcA9BOP8Ju2PIMb-c",
-    authDomain: "carflex-8dd99.firebaseapp.com",
-    projectId: "carflex-8dd99",
-    storageBucket: "carflex-8dd99.firebasestorage.app",
-    messagingSenderId: "357221879980",
-    appId: "1:357221879980:web:ab4d0240083e63f3530f09"
-  };
+// 1. Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyB9OEjBRYc9WeqJ5yUcA9BOP8Ju2PIMb-c",
+  authDomain: "carflex-8dd99.firebaseapp.com",
+  projectId: "carflex-8dd99",
+  storageBucket: "carflex-8dd99.firebasestorage.app",
+  messagingSenderId: "357221879980",
+  appId: "1:357221879980:web:ab4d0240083e63f3530f09"
+};
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
+// 2. Initialize Firebase (Compat version)
+// CHECK: Only initialize if not already initialized
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+// 3. Define Auth and DB exactly ONCE
 const auth = firebase.auth();
 const db = firebase.firestore();
 
@@ -67,221 +66,45 @@ const langData = {
 
 // ---------- PRICE DATABASE (BDT) ----------
 const priceDatabase = {
-  Bike: {
-    general: 2000,
-    master: 3500,
-    wash: 300
-  },
-  Car: {
-    general: 5000,
-    master: 8500,
-    wash: 500
-  },
-  Microbus: {
-    general: 8000,
-    master: 15000,
-    wash: 1200
-  },
-  Coaster: {
-    general: 8000,
-    master: 15000,
-    wash: 1200
-  },
-  Truck: {
-    general: 10000,
-    master: 20000,
-    wash: 1500
-  },
-  Bus: {
-    general: 8000,
-    master: 15000,
-    wash: 1200
-  }
+  Bike: { general: 2000, master: 3500, wash: 300 },
+  Car: { general: 5000, master: 8500, wash: 500 },
+  Microbus: { general: 8000, master: 15000, wash: 1200 },
+  Coaster: { general: 8000, master: 15000, wash: 1200 },
+  Truck: { general: 10000, master: 20000, wash: 1500 },
+  Bus: { general: 8000, master: 15000, wash: 1200 }
 };
 
 // ---------- SERVICE DATABASE (Vehicle Specific) ----------
 const serviceDatabase = {
   Bike: {
-    general: [
-      'Engine oil change (semi-synthetic)',
-      'Air filter cleaning',
-      'Spark plug inspection',
-      'Chain cleaning & lubrication',
-      'Brake pad adjustment',
-      'Clutch cable tuning',
-      'Tyre pressure check',
-      'Battery terminal cleaning'
-    ],
-    master: [
-      'Full engine diagnostics',
-      'Engine oil & filter change',
-      'Valve clearance adjustment',
-      'Carburetor/Injector cleaning',
-      'Brake pad replacement',
-      'Chain & sprocket check',
-      'Wheel alignment',
-      'Coolant top-up'
-    ],
-    wash: [
-      'Gentle foam wash',
-      'Chain degreasing',
-      'Alloy wheel cleaning',
-      'Dashboard polish',
-      'Silencer pipe cleaning',
-      'Tyre shine'
-    ]
+    general: ['Engine oil change (semi-synthetic)', 'Air filter cleaning', 'Spark plug inspection', 'Chain cleaning & lubrication', 'Brake pad adjustment', 'Clutch cable tuning', 'Tyre pressure check', 'Battery terminal cleaning'],
+    master: ['Full engine diagnostics', 'Engine oil & filter change', 'Valve clearance adjustment', 'Carburetor/Injector cleaning', 'Brake pad replacement', 'Chain & sprocket check', 'Wheel alignment', 'Coolant top-up'],
+    wash: ['Gentle foam wash', 'Chain degreasing', 'Alloy wheel cleaning', 'Dashboard polish', 'Silencer pipe cleaning', 'Tyre shine']
   },
   Car: {
-    general: [
-      'Engine oil change (semi-synthetic)',
-      'Oil filter replacement',
-      'Air filter cleaning',
-      'AC gas check',
-      'Brake fluid top-up',
-      'Wiper blade inspection',
-      'Battery health check',
-      'Tyre rotation'
-    ],
-    master: [
-      'Full engine scan (ECU)',
-      'Engine oil & filter (synthetic)',
-      'Gear oil replacement',
-      'Coolant flush & refill',
-      'Brake pad/shoe inspection',
-      'Spark plug replacement',
-      'Fuel injector cleaning',
-      'Wheel alignment & balancing'
-    ],
-    wash: [
-      'Exterior foam wash',
-      'Interior vacuum cleaning',
-      'Dashboard polish',
-      'Glass cleaning',
-      'Underbody wash',
-      'Tyre dressing',
-      'Door jambs cleaning'
-    ]
+    general: ['Engine oil change (semi-synthetic)', 'Oil filter replacement', 'Air filter cleaning', 'AC gas check', 'Brake fluid top-up', 'Wiper blade inspection', 'Battery health check', 'Tyre rotation'],
+    master: ['Full engine scan (ECU)', 'Engine oil & filter (synthetic)', 'Gear oil replacement', 'Coolant flush & refill', 'Brake pad/shoe inspection', 'Spark plug replacement', 'Fuel injector cleaning', 'Wheel alignment & balancing'],
+    wash: ['Exterior foam wash', 'Interior vacuum cleaning', 'Dashboard polish', 'Glass cleaning', 'Underbody wash', 'Tyre dressing', 'Door jambs cleaning']
   },
   Microbus: {
-    general: [
-      'Engine oil change (diesel)',
-      'Oil & fuel filter check',
-      'Air filter cleaning',
-      'Brake system inspection',
-      'Power steering fluid check',
-      'AC vent cleaning',
-      'Sliding door roller lube',
-      'Battery water top-up'
-    ],
-    master: [
-      'Full engine diagnostics',
-      'Engine oil & all filters',
-      'Gear oil replacement',
-      'Differential oil check',
-      'Brake shoe/pad replacement',
-      'AC gas refill',
-      'Propeller shaft lubrication',
-      'Coolant replacement'
-    ],
-    wash: [
-      'High-pressure foam wash',
-      'Interior deep vacuum',
-      'Roof rack cleaning',
-      'Seat upholstery clean',
-      'Window track cleaning',
-      'Underbody rinse',
-      'Tyre shine'
-    ]
+    general: ['Engine oil change (diesel)', 'Oil & fuel filter check', 'Air filter cleaning', 'Brake system inspection', 'Power steering fluid check', 'AC vent cleaning', 'Sliding door roller lube', 'Battery water top-up'],
+    master: ['Full engine diagnostics', 'Engine oil & all filters', 'Gear oil replacement', 'Differential oil check', 'Brake shoe/pad replacement', 'AC gas refill', 'Propeller shaft lubrication', 'Coolant replacement'],
+    wash: ['High-pressure foam wash', 'Interior deep vacuum', 'Roof rack cleaning', 'Seat upholstery clean', 'Window track cleaning', 'Underbody rinse', 'Tyre shine']
   },
   Coaster: {
-    general: [
-      'Engine oil change (diesel)',
-      'Fuel filter replacement',
-      'Air filter cleaning',
-      'Brake fluid check',
-      'Power steering fluid top-up',
-      'AC filter cleaning',
-      'Battery terminals clean',
-      'Light & horn test'
-    ],
-    master: [
-      'Complete engine tuning',
-      'Oil & all filters change',
-      'Gearbox oil replacement',
-      'Differential oil change',
-      'Brake system overhaul',
-      'AC performance check',
-      'Radiator flush',
-      'Suspension check'
-    ],
-    wash: [
-      'Full body foam wash',
-      'Interior shampoo',
-      'Window cleaning',
-      'Floor mat pressure wash',
-      'Engine bay degrease',
-      'Tyre polishing'
-    ]
+    general: ['Engine oil change (diesel)', 'Fuel filter replacement', 'Air filter cleaning', 'Brake fluid check', 'Power steering fluid top-up', 'AC filter cleaning', 'Battery terminals clean', 'Light & horn test'],
+    master: ['Complete engine tuning', 'Oil & all filters change', 'Gearbox oil replacement', 'Differential oil change', 'Brake system overhaul', 'AC performance check', 'Radiator flush', 'Suspension check'],
+    wash: ['Full body foam wash', 'Interior shampoo', 'Window cleaning', 'Floor mat pressure wash', 'Engine bay degrease', 'Tyre polishing']
   },
   Truck: {
-    general: [
-      'Engine oil change (diesel)',
-      'Fuel filter water drain',
-      'Air filter cleaning',
-      'Brake adjustment',
-      'Clutch fluid check',
-      'Leaf spring inspection',
-      'Battery load test',
-      'Tyre pressure check'
-    ],
-    master: [
-      'Full engine diagnostics',
-      'Engine oil & all filters',
-      'Gearbox oil change',
-      'Differential oil service',
-      'Brake shoe replacement',
-      'Clutch plate check',
-      'DPF cleaning',
-      'Coolant replacement'
-    ],
-    wash: [
-      'High-pressure truck wash',
-      'Trailer cleaning',
-      'Underbody high jet',
-      'Mud flap cleaning',
-      'Cabin interior clean',
-      'Wheel rim cleaning'
-    ]
+    general: ['Engine oil change (diesel)', 'Fuel filter water drain', 'Air filter cleaning', 'Brake adjustment', 'Clutch fluid check', 'Leaf spring inspection', 'Battery load test', 'Tyre pressure check'],
+    master: ['Full engine diagnostics', 'Engine oil & all filters', 'Gearbox oil change', 'Differential oil service', 'Brake shoe replacement', 'Clutch plate check', 'DPF cleaning', 'Coolant replacement'],
+    wash: ['High-pressure truck wash', 'Trailer cleaning', 'Underbody high jet', 'Mud flap cleaning', 'Cabin interior clean', 'Wheel rim cleaning']
   },
   Bus: {
-    general: [
-      'Engine oil change',
-      'Fuel filter cleaning',
-      'Air filter service',
-      'Brake system check',
-      'Power steering fluid',
-      'AC vent cleaning',
-      'Passenger seat check',
-      'Battery maintenance'
-    ],
-    master: [
-      'Engine tuning & scan',
-      'Oil & all filters replace',
-      'Gearbox oil service',
-      'Differential oil change',
-      'Brake shoe replacement',
-      'Air suspension check',
-      'AC gas refill',
-      'Coolant flush'
-    ],
-    wash: [
-      'Full bus exterior wash',
-      'Interior deep cleaning',
-      'Seat upholstery wash',
-      'Window cleaning',
-      'Floor scrubbing',
-      'Tyre dressing'
-    ]
+    general: ['Engine oil change', 'Fuel filter cleaning', 'Air filter service', 'Brake system check', 'Power steering fluid', 'AC vent cleaning', 'Passenger seat check', 'Battery maintenance'],
+    master: ['Engine tuning & scan', 'Oil & all filters replace', 'Gearbox oil service', 'Differential oil change', 'Brake shoe replacement', 'Air suspension check', 'AC gas refill', 'Coolant flush'],
+    wash: ['Full bus exterior wash', 'Interior deep cleaning', 'Seat upholstery wash', 'Window cleaning', 'Floor scrubbing', 'Tyre dressing']
   }
 };
 
@@ -322,24 +145,16 @@ const elements = {
 // ---------- UTILITY FUNCTIONS ----------
 const mapToEnglish = (bnVehicle) => {
   const mapping = {
-    'বাইক': 'Bike',
-    'কার': 'Car',
-    'মাইক্রোবাস': 'Microbus',
-    'কোস্টার': 'Coaster',
-    'ট্রাক': 'Truck',
-    'বাস': 'Bus'
+    'বাইক': 'Bike', 'কার': 'Car', 'মাইক্রোবাস': 'Microbus',
+    'কোস্টার': 'Coaster', 'ট্রাক': 'Truck', 'বাস': 'Bus'
   };
   return mapping[bnVehicle] || bnVehicle;
 };
 
 const mapToBangla = (enVehicle) => {
   const mapping = {
-    'Bike': 'বাইক',
-    'Car': 'কার',
-    'Microbus': 'মাইক্রোবাস',
-    'Coaster': 'কোস্টার',
-    'Truck': 'ট্রাক',
-    'Bus': 'বাস'
+    'Bike': 'বাইক', 'Car': 'কার', 'Microbus': 'মাইক্রোবাস',
+    'Coaster': 'কোস্টার', 'Truck': 'ট্রাক', 'Bus': 'বাস'
   };
   return mapping[enVehicle] || enVehicle;
 };
@@ -514,6 +329,7 @@ function updateAuthUI(user) {
 }
 
 // ---------- SIGN IN WITH GOOGLE ----------
+// (Duplicate helper for index.html quick access)
 function signInWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider)
@@ -591,7 +407,7 @@ function setupEventListeners() {
   elements.langEn.addEventListener('click', () => updateLanguage('en'));
   elements.langBn.addEventListener('click', () => updateLanguage('bn'));
 
-  // Logout button (still present in index.html)
+  // Logout button
   if (elements.logoutBtn) {
     elements.logoutBtn.addEventListener('click', signOut);
   }
@@ -621,4 +437,3 @@ function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
-

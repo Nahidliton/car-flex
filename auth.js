@@ -1,6 +1,5 @@
 // ===== auth.js – Firebase Authentication for Login/Signup Pages =====
 
-// Use the SAME Firebase config as script.js
 const firebaseConfig = {
   apiKey: "AIzaSyB9OEjBRYc9WeqJ5yUcA9BOP8Ju2PIMb-c",
   authDomain: "carflex-8dd99.firebaseapp.com",
@@ -10,20 +9,24 @@ const firebaseConfig = {
   appId: "1:357221879980:web:ab4d0240083e63f3530f09"
 };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+// Initialize Firebase only if it hasn't been initialized yet
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 const auth = firebase.auth();
 
 // ---------- GOOGLE SIGN-IN ----------
 function signInWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider)
-    .then(() => {
+    .then((result) => {
+      // Successful login
+      console.log("User:", result.user);
       window.location.href = 'index.html';
     })
     .catch(error => {
-      console.error(error);
-      alert('Sign in failed. Please try again.');
+      console.error("Error:", error);
+      alert('Sign in failed: ' + error.message);
     });
 }
 
