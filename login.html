@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Car Flex · Log in</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <!-- Firebase (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <div class="container" style="max-width: 500px;">
+    
+    <!-- Brand header (simple) -->
+    <div class="top-bar" style="justify-content: center; margin-bottom: 2.5rem;">
+      <div class="brand">
+        <i class="fas fa-car-side"></i>
+        <h1>Car Flex</h1>
+      </div>
+    </div>
+
+    <div class="auth-card">
+      <h2>Log in to your account</h2>
+      
+      <!-- Email/Password Form -->
+      <form id="loginForm">
+        <div class="form-group">
+          <label><i class="far fa-envelope"></i> Email</label>
+          <input type="email" id="email" class="auth-input" placeholder="your@email.com" required>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-lock"></i> Password</label>
+          <input type="password" id="password" class="auth-input" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Log in</button>
+      </form>
+
+      <div class="auth-divider">
+        <span>or</span>
+      </div>
+
+      <!-- Google Sign-In -->
+      <button id="googleSignInBtn" class="btn btn-outline btn-block">
+        <i class="fab fa-google"></i> Continue with Google
+      </button>
+
+      <p class="auth-redirect">
+        Don't have an account? <a href="signup.html">Sign up</a>
+      </p>
+      <p class="auth-redirect">
+        <a href="#" id="forgotPassword">Forgot password?</a>
+      </p>
+    </div>
+
+    <!-- Back to main page link -->
+    <div style="text-align: center; margin-top: 2rem;">
+      <a href="index.html" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Back to Booking</a>
+    </div>
+
+  </div>
+
+  <script src="auth.js"></script>
+  <script>
+    // DOM elements
+    const loginForm = document.getElementById('loginForm');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const googleBtn = document.getElementById('googleSignInBtn');
+    const forgotLink = document.getElementById('forgotPassword');
+
+    // Email/password login
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+      if (email && password) {
+        signInWithEmail(email, password);
+      }
+    });
+
+    // Google sign-in
+    googleBtn.addEventListener('click', signInWithGoogle);
+
+    // Password reset
+    forgotLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      const email = emailInput.value.trim();
+      if (email) {
+        resetPassword(email);
+      } else {
+        alert('Please enter your email address first.');
+      }
+    });
+  </script>
+</body>
+</html>

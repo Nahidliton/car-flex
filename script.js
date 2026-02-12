@@ -586,13 +586,15 @@ function setupEventListeners() {
   elements.langEn.addEventListener('click', () => updateLanguage('en'));
   elements.langBn.addEventListener('click', () => updateLanguage('bn'));
 
-  document.getElementById('loginBtn').addEventListener('click', signInWithGoogle);
-  document.getElementById('signupBtn').addEventListener('click', signInWithGoogle);
-  
-  elements.logoutBtn.addEventListener('click', signOut);
+  // Logout button (still present in index.html)
+  if (elements.logoutBtn) {
+    elements.logoutBtn.addEventListener('click', signOut);
+  }
 
+  // Confirm booking button
   elements.confirmBtn.addEventListener('click', confirmBooking);
 
+  // Auto-resize textarea
   elements.descBox.addEventListener('input', function() {
     this.style.height = 'auto';
     this.style.height = (this.scrollHeight) + 'px';
