@@ -1,15 +1,20 @@
-// ===== CAR FLEX - COMPLETE VEHICLE & PRICE SYSTEM + FIREBASE =====
+// Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
 
-// ---------- FIREBASE CONFIG (REPLACE WITH YOUR CREDENTIALS) ----------
-const firebaseConfig = {
-  apiKey: "AIzaSyA2tR1NPiNSe-xj6PBo5jvunnaHhgR8SKU",
-  authDomain: "carflex-49991.firebaseapp.com",
-  projectId: "carflex-49991",
-  storageBucket: "carflex-49991.firebasestorage.app",
-  messagingSenderId: "208285784821",
-  appId: "1:208285784821:web:7e5b8a2fca29463ca043bc"
-};
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyB9OEjBRYc9WeqJ5yUcA9BOP8Ju2PIMb-c",
+    authDomain: "carflex-8dd99.firebaseapp.com",
+    projectId: "carflex-8dd99",
+    storageBucket: "carflex-8dd99.firebasestorage.app",
+    messagingSenderId: "357221879980",
+    appId: "1:357221879980:web:ab4d0240083e63f3530f09"
+  };
 
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
