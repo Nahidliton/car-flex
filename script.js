@@ -1,6 +1,22 @@
-// ===== CAR FLEX - COMPLETE VEHICLE & PRICE SYSTEM =====
+// ===== CAR FLEX - COMPLETE VEHICLE & PRICE SYSTEM + FIREBASE =====
 
-// ---------- LANGUAGE DATABASE ----------
+// ---------- FIREBASE CONFIG (REPLACE WITH YOUR CREDENTIALS) ----------
+const firebaseConfig = {
+  apiKey: "AIzaSyA2tR1NPiNSe-xj6PBo5jvunnaHhgR8SKU",
+  authDomain: "carflex-49991.firebaseapp.com",
+  projectId: "carflex-49991",
+  storageBucket: "carflex-49991.firebasestorage.app",
+  messagingSenderId: "208285784821",
+  appId: "1:208285784821:web:7e5b8a2fca29463ca043bc"
+};
+
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// ---------- LANGUAGE DATABASE (FULL) ----------
 const langData = {
   en: {
     brand: "Car Flex",
@@ -45,7 +61,6 @@ const langData = {
 };
 
 // ---------- PRICE DATABASE (BDT) ----------
-// Based on vehicle type and service category
 const priceDatabase = {
   Bike: {
     general: 2000,
@@ -80,9 +95,7 @@ const priceDatabase = {
 };
 
 // ---------- SERVICE DATABASE (Vehicle Specific) ----------
-// Completely different services for each vehicle type
 const serviceDatabase = {
-  // ----- BIKE SERVICES -----
   Bike: {
     general: [
       'Engine oil change (semi-synthetic)',
@@ -113,8 +126,6 @@ const serviceDatabase = {
       'Tyre shine'
     ]
   },
-  
-  // ----- CAR SERVICES -----
   Car: {
     general: [
       'Engine oil change (semi-synthetic)',
@@ -146,8 +157,6 @@ const serviceDatabase = {
       'Door jambs cleaning'
     ]
   },
-  
-  // ----- MICROBUS SERVICES -----
   Microbus: {
     general: [
       'Engine oil change (diesel)',
@@ -179,8 +188,6 @@ const serviceDatabase = {
       'Tyre shine'
     ]
   },
-  
-  // ----- COASTER SERVICES -----
   Coaster: {
     general: [
       'Engine oil change (diesel)',
@@ -211,8 +218,6 @@ const serviceDatabase = {
       'Tyre polishing'
     ]
   },
-  
-  // ----- TRUCK SERVICES -----
   Truck: {
     general: [
       'Engine oil change (diesel)',
@@ -243,8 +248,6 @@ const serviceDatabase = {
       'Wheel rim cleaning'
     ]
   },
-  
-  // ----- BUS SERVICES -----
   Bus: {
     general: [
       'Engine oil change',
@@ -301,7 +304,14 @@ const elements = {
   vehicleGrid: document.getElementById('vehicleGrid'),
   serviceContainer: document.getElementById('serviceCatContainer'),
   serviceDate: document.getElementById('serviceDate'),
-  serviceTime: document.getElementById('serviceTime')
+  serviceTime: document.getElementById('serviceTime'),
+  // new elements
+  authButtons: document.getElementById('authButtons'),
+  userGreeting: document.getElementById('userGreeting'),
+  userDisplayName: document.getElementById('userDisplayName'),
+  logoutBtn: document.getElementById('logoutBtn'),
+  logoutTxt: document.getElementById('logoutTxt'),
+  confirmBtn: document.getElementById('confirmBookingBtn')
 };
 
 // ---------- UTILITY FUNCTIONS ----------
@@ -331,24 +341,19 @@ const mapToBangla = (enVehicle) => {
 
 // ---------- GET VEHICLE SPECIFIC SERVICES ----------
 function getServicesForVehicle(vehicleType, categoryKey) {
-  // Default to Car if vehicle not found
   const vehicle = serviceDatabase[vehicleType] || serviceDatabase.Car;
-  
   if (categoryKey === 'general') return vehicle.general || serviceDatabase.Car.general;
   if (categoryKey === 'master') return vehicle.master || serviceDatabase.Car.master;
   if (categoryKey === 'wash') return vehicle.wash || serviceDatabase.Car.wash;
-  
   return [];
 }
 
 // ---------- GET PRICE FOR VEHICLE & SERVICE ----------
 function getPriceForVehicle(vehicleType, categoryKey) {
   const vehiclePrices = priceDatabase[vehicleType] || priceDatabase.Car;
-  
   if (categoryKey === 'general') return vehiclePrices.general;
   if (categoryKey === 'master') return vehiclePrices.master;
   if (categoryKey === 'wash') return vehiclePrices.wash;
-  
   return 0;
 }
 
@@ -361,8 +366,8 @@ function renderVehicles() {
     let icon = 'fa-car';
     if (v.includes('Bike') || v.includes('বাইক')) icon = 'fa-motorcycle';
     else if (v.includes('Car') || v.includes('কার')) icon = 'fa-car';
-    else if (v.includes('Microbus') || v.includes('মাইক্রোবাস')) icon = 'fa-bus'; // Microbus gets bus icon
-    else if (v.includes('Coaster') || v.includes('কোস্টার')) icon = 'fa-bus'; // Coaster also gets bus icon
+    else if (v.includes('Microbus') || v.includes('মাইক্রোবাস')) icon = 'fa-bus';
+    else if (v.includes('Coaster') || v.includes('কোস্টার')) icon = 'fa-bus';
     else if (v.includes('Truck') || v.includes('ট্রাক')) icon = 'fa-truck';
     else if (v.includes('Bus') || v.includes('বাস')) icon = 'fa-bus';
     
@@ -386,18 +391,15 @@ function attachVehicleListeners() {
     card.addEventListener('click', function() {
       const vehRaw = this.dataset.vehicle;
       
-      // Update selected vehicle
       if (currentLang === 'en') {
         selectedVehicle = vehRaw;
       } else {
         selectedVehicle = mapToEnglish(vehRaw);
       }
       
-      // Update active state
       document.querySelectorAll('.vehicle-card').forEach(c => c.classList.remove('active'));
       this.classList.add('active');
       
-      // Re-render services with new vehicle
       renderServiceCategories();
     });
   });
@@ -419,13 +421,8 @@ function renderServiceCategories() {
   const priceLabel = langData[currentLang].priceLabel;
 
   categories.forEach(cat => {
-    // Get vehicle-specific services
     const points = getServicesForVehicle(selectedVehicle, cat.key);
-    
-    // Get price for this vehicle and service
     const price = getPriceForVehicle(selectedVehicle, cat.key);
-    
-    // Format price with commas
     const formattedPrice = price.toLocaleString('en-BD');
     
     const listItems = points.map(p => 
@@ -461,7 +458,6 @@ function updateLanguage(lang) {
   currentLang = lang;
   const d = langData[lang];
 
-  // Update all text content
   elements.brandName.innerText = d.brand;
   elements.viewerMsg.innerText = d.viewerMsg;
   elements.vehicleSecTitle.innerText = d.vehicleSec;
@@ -475,12 +471,13 @@ function updateLanguage(lang) {
   elements.loginTxt.innerText = d.loginTxt;
   elements.signupTxt.innerText = d.signupTxt;
   elements.footerText.innerText = d.footer;
+  if (elements.logoutTxt) {
+    elements.logoutTxt.innerText = lang === 'en' ? 'Log out' : 'লগ আউট';
+  }
 
-  // Update active button state
   elements.langEn.classList.toggle('active', lang === 'en');
   elements.langBn.classList.toggle('active', lang === 'bn');
 
-  // Re-render dynamic content
   renderVehicles();
   renderServiceCategories();
 }
@@ -499,26 +496,103 @@ function setDefaultDate() {
   elements.serviceDate.value = `${yyyy}-${mm}-${dd}`;
 }
 
+// ---------- FIREBASE AUTH UI UPDATE ----------
+function updateAuthUI(user) {
+  if (user) {
+    elements.authButtons.style.display = 'none';
+    elements.userGreeting.style.display = 'flex';
+    elements.userDisplayName.innerHTML = `<i class="fas fa-user-circle"></i> ${user.displayName || user.email}`;
+  } else {
+    elements.authButtons.style.display = 'flex';
+    elements.userGreeting.style.display = 'none';
+  }
+}
+
+// ---------- SIGN IN WITH GOOGLE ----------
+function signInWithGoogle() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider)
+    .catch(error => {
+      console.error('Sign in error:', error);
+      alert(currentLang === 'en' ? 'Sign in failed. Please try again.' : 'সাইন ইন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।');
+    });
+}
+
+// ---------- SIGN OUT ----------
+function signOut() {
+  auth.signOut().catch(error => {
+    console.error('Sign out error:', error);
+  });
+}
+
+// ---------- CONFIRM BOOKING ----------
+async function confirmBooking() {
+  const user = auth.currentUser;
+  if (!user) {
+    signInWithGoogle();
+    return;
+  }
+
+  const vehicle = selectedVehicle;
+  const description = elements.descBox.value.trim() || '';
+  const date = elements.serviceDate.value;
+  const time = elements.serviceTime.value;
+
+  if (!date) {
+    alert(currentLang === 'en' ? 'Please select a service date.' : 'সেবার তারিখ নির্বাচন করুন।');
+    return;
+  }
+
+  const categories = [
+    { key: 'general', name: langData[currentLang].cat1 },
+    { key: 'master', name: langData[currentLang].cat2 },
+    { key: 'wash', name: langData[currentLang].cat3 }
+  ];
+
+  const servicesBooked = categories.map(cat => ({
+    category: cat.key,
+    name: cat.name,
+    price: getPriceForVehicle(vehicle, cat.key),
+    items: getServicesForVehicle(vehicle, cat.key)
+  }));
+
+  const booking = {
+    userId: user.uid,
+    userEmail: user.email,
+    userName: user.displayName || '',
+    vehicle,
+    description,
+    date,
+    time,
+    services: servicesBooked,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  try {
+    await db.collection('bookings').add(booking);
+    alert(currentLang === 'en' 
+      ? '✅ Booking confirmed! Thank you for choosing Car Flex.' 
+      : '✅ বুকিং নিশ্চিত হয়েছে! কার ফ্লেক্স বেছে নেওয়ার জন্য ধন্যবাদ।');
+  } catch (error) {
+    console.error('Booking error:', error);
+    alert(currentLang === 'en' 
+      ? 'Booking failed. Please try again.' 
+      : 'বুকিং ব্যর্থ হয়েছে। আবার চেষ্টা করুন।');
+  }
+}
+
 // ---------- EVENT LISTENERS ----------
 function setupEventListeners() {
-  // Language switchers
   elements.langEn.addEventListener('click', () => updateLanguage('en'));
   elements.langBn.addEventListener('click', () => updateLanguage('bn'));
 
-  // Auth buttons
-  document.getElementById('loginBtn').addEventListener('click', () => {
-    alert(currentLang === 'en' 
-      ? '🔐 Login demo — Redirecting to secure login page.' 
-      : '🔐 লগইন ডেমো — নিরাপদ লগইন পৃষ্ঠায় যাচ্ছে।');
-  });
+  document.getElementById('loginBtn').addEventListener('click', signInWithGoogle);
+  document.getElementById('signupBtn').addEventListener('click', signInWithGoogle);
+  
+  elements.logoutBtn.addEventListener('click', signOut);
 
-  document.getElementById('signupBtn').addEventListener('click', () => {
-    alert(currentLang === 'en' 
-      ? '✨ Sign up demo — Create your Car Flex account.' 
-      : '✨ সাইন আপ ডেমো — আপনার কার ফ্লেক্স অ্যাকাউন্ট খুলুন।');
-  });
+  elements.confirmBtn.addEventListener('click', confirmBooking);
 
-  // Auto-resize textarea
   elements.descBox.addEventListener('input', function() {
     this.style.height = 'auto';
     this.style.height = (this.scrollHeight) + 'px';
@@ -531,10 +605,13 @@ function init() {
   renderVehicles();
   renderServiceCategories();
   setupEventListeners();
-  
-  // Set initial active state
+
+  auth.onAuthStateChanged(user => {
+    updateAuthUI(user);
+  });
+
   selectedVehicle = 'Car';
 }
 
-// Start the application
 document.addEventListener('DOMContentLoaded', init);
+
