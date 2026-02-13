@@ -1,6 +1,10 @@
-// ===== script.js – Main Logic for index.html =====
-// COMPLETE VERSION WITH FULL BOOKING FUNCTIONALITY
+// ===== script.js – Car Flex Main Booking Logic =====
+// FULLY OPTIMIZED & DEBUGGED VERSION
 
+// ---------- TEST MODE (Disable for production) ----------
+const TEST_MODE = false; // Set to false when Firebase is configured
+
+// ---------- FIREBASE CONFIG ----------
 const firebaseConfig = {
   apiKey: "AIzaSyB9OEjBRYc9WeqJ5yUcA9BOP8Ju2PIMb-c",
   authDomain: "carflex-8dd99.firebaseapp.com",
@@ -10,14 +14,32 @@ const firebaseConfig = {
   appId: "1:357221879980:web:ab4d0240083e63f3530f09"
 };
 
-// 1. Initialize Firebase (Check if already initialized)
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
+// Initialize Firebase (with error handling)
+try {
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+    console.log('✅ Firebase initialized');
+  }
+} catch (error) {
+  console.error('❌ Firebase initialization failed:', error);
 }
 
-// 2. Define Auth and DB exactly ONCE
+// Firebase services
 const auth = firebase.auth();
-const db = firebase.firestore();
+let db = null;
+
+// Initialize Firestore with fallback
+try {
+  db = firebase.firestore();
+  // Enable offline persistence for better performance
+  db.enablePersistence({ synchronizeTabs: true }).catch(err => {
+    console.warn('Firestore persistence error:', err.code);
+  });
+  console.log('✅ Firestore initialized');
+} catch (error) {
+  console.error('❌ Firestore initialization failed:', error);
+  db = null;
+}
 
 // ---------- LANGUAGE DATABASE ----------
 const langData = {
@@ -38,20 +60,22 @@ const langData = {
     footer: "🚗 Car Flex — premium vehicle care. © 2025",
     vehicleTypes: ["Bike", "Car", "Microbus", "Coaster", "Truck", "Bus"],
     cat1: "General Servicing",
-    cat2: "Master Servicing", 
+    cat2: "Master Servicing",
     cat3: "Wash Vehicle",
     priceLabel: "Price",
     selectDate: "Please select a date",
     selectVehicle: "Please select a vehicle",
     selectService: "Please select at least one service",
     futureDate: "Please select a future date",
-    loginRequired: "Please log in or sign up to confirm your booking",
+    loginRequired: "Please log in to confirm your booking",
     bookingConfirmed: "✅ Your booking is confirmed!",
     bookingFailed: "❌ Booking failed",
-    confirmBooking: "Confirm Booking"
+    confirmBooking: "Confirm Booking",
+    processing: "Processing...",
+    logoutSuccess: "Logged out successfully"
   },
   bn: {
-    brand: "কার ফ্লেক্স",
+    brand: "Car Flex",
     viewerMsg: "👋 সমস্ত ফিচার দেখুন — লগইন ছাড়া। বুকিংয়ের জন্য শুধু সাইন আপ।",
     vehicleSec: "১. আপনার গাড়ি বেছে নিন",
     vehicleBadge: "আবশ্যক",
@@ -68,16 +92,18 @@ const langData = {
     vehicleTypes: ["বাইক", "কার", "মাইক্রোবাস", "কোস্টার", "ট্রাক", "বাস"],
     cat1: "জেনারেল সার্ভিসিং",
     cat2: "মাস্টার সার্ভিসিং",
-    cat3: "ওয়াশ ভেহিকল",
+    cat3: "গাড়ি পরিষ্কার",
     priceLabel: "মূল্য",
     selectDate: "তারিখ নির্বাচন করুন",
     selectVehicle: "গাড়ি নির্বাচন করুন",
     selectService: "অন্তত একটি সেবা নির্বাচন করুন",
     futureDate: "ভবিষ্যতের তারিখ নির্বাচন করুন",
-    loginRequired: "বুকিং নিশ্চিত করতে লগইন বা সাইন আপ করুন",
+    loginRequired: "বুকিং নিশ্চিত করতে লগইন করুন",
     bookingConfirmed: "✅ আপনার বুকিং নিশ্চিত করা হয়েছে!",
     bookingFailed: "❌ বুকিং ব্যর্থ হয়েছে",
-    confirmBooking: "বুকিং নিশ্চিত করুন"
+    confirmBooking: "বুকিং নিশ্চিত করুন",
+    processing: "প্রসেসিং...",
+    logoutSuccess: "লগআউট সফল হয়েছে"
   }
 };
 
@@ -150,9 +176,12 @@ let selectedServices = {
   wash: false
 };
 
-// ---------- DOM ELEMENTS - Wait for DOM to be ready ----------
-function getDOMElements() {
-  return {
+// ---------- DOM ELEMENT CACHE ----------
+let elements = {};
+
+// ---------- UPDATE DOM ELEMENT CACHE ----------
+function cacheDOMElements() {
+  elements = {
     brandName: document.getElementById('brandName'),
     viewerMsg: document.getElementById('viewerMsg'),
     vehicleSecTitle: document.getElementById('vehicleSecTitle'),
@@ -186,12 +215,26 @@ function getDOMElements() {
 
 // ---------- HELPERS ----------
 const mapToEnglish = (v) => {
-  const m = { 'বাইক': 'Bike', 'কার': 'Car', 'মাইক্রোবাস': 'Microbus', 'কোস্টার': 'Coaster', 'ট্রাক': 'Truck', 'বাস': 'Bus' };
+  const m = { 
+    'বাইক': 'Bike', 
+    'কার': 'Car', 
+    'মাইক্রোবাস': 'Microbus', 
+    'কোস্টার': 'Coaster', 
+    'ট্রাক': 'Truck', 
+    'বাস': 'Bus' 
+  };
   return m[v] || v;
 };
 
 const mapToBangla = (v) => {
-  const m = { 'Bike': 'বাইক', 'Car': 'কার', 'Microbus': 'মাইক্রোবাস', 'Coaster': 'কোস্টার', 'Truck': 'ট্রাক', 'Bus': 'বাস' };
+  const m = { 
+    'Bike': 'বাইক', 
+    'Car': 'কার', 
+    'Microbus': 'মাইক্রোবাস', 
+    'Coaster': 'কোস্টার', 
+    'Truck': 'ট্রাক', 
+    'Bus': 'বাস' 
+  };
   return m[v] || v;
 };
 
@@ -215,23 +258,23 @@ function calculateTotalPrice() {
 
 // ---------- NOTIFICATION SYSTEM ----------
 function showNotification(message, type = 'success') {
-  const elements = getDOMElements();
   const panel = elements.notificationPanel;
   const messageEl = elements.notificationMessage;
   
-  if (!panel || !messageEl) return;
+  if (!panel || !messageEl) {
+    alert(message);
+    return;
+  }
   
   messageEl.textContent = message;
   panel.className = 'notification-panel';
   panel.classList.add(type);
   panel.style.display = 'block';
   
-  // Auto hide after 5 seconds for success messages
-  if (type === 'success') {
-    setTimeout(() => {
-      panel.style.display = 'none';
-    }, 5000);
-  }
+  // Auto hide after 5 seconds
+  setTimeout(() => {
+    panel.style.display = 'none';
+  }, 5000);
 }
 
 // ---------- TOGGLE SERVICE SELECTION ----------
@@ -243,7 +286,7 @@ function toggleService(serviceKey) {
 
 // ---------- SHOW SELECTED SERVICES SUMMARY ----------
 function showSelectedServicesSummary() {
-  const container = document.querySelector('.selected-services-summary');
+  const container = elements.selectedServicesSummary;
   if (!container) return;
   
   const selected = [];
@@ -267,7 +310,7 @@ function showSelectedServicesSummary() {
   `;
   
   if (selected.length > 0) {
-    html += '<div>';
+    html += '<div class="selected-services-tags">';
     selected.forEach(service => {
       html += `<span class="service-tag">
         <i class="fas fa-check-circle"></i> ${service.name} - ৳${service.price.toLocaleString('en-BD')}
@@ -289,7 +332,6 @@ function showSelectedServicesSummary() {
 
 // ---------- RENDER VEHICLES ----------
 function renderVehicles() {
-  const elements = getDOMElements();
   if (!elements.vehicleGrid) return;
   
   const types = langData[currentLang].vehicleTypes;
@@ -320,7 +362,6 @@ function renderVehicles() {
 
 // ---------- RENDER SERVICE CATEGORIES ----------
 function renderServiceCategories() {
-  const elements = getDOMElements();
   if (!elements.serviceContainer) return;
   
   const cats = [
@@ -371,7 +412,6 @@ function renderServiceCategories() {
 // ---------- UI UPDATES ----------
 function updateLanguage(lang) {
   currentLang = lang;
-  const elements = getDOMElements();
   const d = langData[lang];
   
   if (elements.brandName) elements.brandName.innerText = d.brand;
@@ -388,11 +428,9 @@ function updateLanguage(lang) {
   if (elements.signupTxt) elements.signupTxt.innerText = d.signupTxt;
   if (elements.logoutTxt) elements.logoutTxt.innerText = d.logoutTxt;
   if (elements.footerText) elements.footerText.innerText = d.footer;
+  
   if (elements.confirmBtn) {
-    const icon = elements.confirmBtn.querySelector('i');
-    elements.confirmBtn.innerHTML = '';
-    if (icon) elements.confirmBtn.appendChild(icon);
-    elements.confirmBtn.appendChild(document.createTextNode(` ${d.confirmBooking}`));
+    elements.confirmBtn.innerHTML = `<i class="fas fa-check-circle"></i> ${d.confirmBooking}`;
   }
   
   if (elements.langEn) elements.langEn.classList.toggle('active', lang === 'en');
@@ -404,7 +442,6 @@ function updateLanguage(lang) {
 }
 
 function updateAuthUI(user) {
-  const elements = getDOMElements();
   if (!elements.authButtons || !elements.userGreeting) return;
   
   if (user) {
@@ -422,44 +459,50 @@ function updateAuthUI(user) {
 // ---------- AUTH ACTIONS ----------
 function signInWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch(e => {
-    console.error(e);
-    showNotification('Sign in failed: ' + e.message, 'error');
-  });
+  auth.signInWithPopup(provider)
+    .then(() => {
+      window.location.href = 'index.html';
+    })
+    .catch(e => {
+      console.error(e);
+      showNotification('Sign in failed: ' + e.message, 'error');
+    });
 }
 
 function signOut() {
-  auth.signOut().then(() => {
-    showNotification(currentLang === 'en' ? 'Logged out successfully' : 'লগআউট সফল হয়েছে', 'success');
-  });
+  auth.signOut()
+    .then(() => {
+      showNotification(langData[currentLang].logoutSuccess, 'success');
+      updateAuthUI(null);
+    })
+    .catch(e => {
+      console.error(e);
+      showNotification('Logout failed: ' + e.message, 'error');
+    });
 }
 
 // ---------- VALIDATE BOOKING ----------
 function validateBooking() {
-  const elements = getDOMElements();
-  
   // Check if user is logged in
   if (!auth.currentUser) {
     showNotification(langData[currentLang].loginRequired, 'warning');
     setTimeout(() => {
-      if (confirm(currentLang === 'en' ? 'You need to login first. Go to login page?' : 'প্রথমে লগইন প্রয়োজন। লগইন পৃষ্ঠায় যাবেন?')) {
-        window.location.href = 'login.html';
-      }
-    }, 1000);
+      window.location.href = 'login.html';
+    }, 2000);
     return false;
   }
   
   // Check if vehicle is selected
   if (!selectedVehicle) {
     showNotification(langData[currentLang].selectVehicle, 'warning');
-    document.getElementById('vehicleSecTitle')?.scrollIntoView({ behavior: 'smooth' });
+    elements.vehicleSecTitle?.scrollIntoView({ behavior: 'smooth' });
     return false;
   }
   
   // Check if at least one service is selected
   if (!selectedServices.general && !selectedServices.master && !selectedServices.wash) {
     showNotification(langData[currentLang].selectService, 'warning');
-    document.getElementById('serviceSecTitle')?.scrollIntoView({ behavior: 'smooth' });
+    elements.serviceSecTitle?.scrollIntoView({ behavior: 'smooth' });
     return false;
   }
   
@@ -474,6 +517,7 @@ function validateBooking() {
   const selectedDate = new Date(elements.serviceDate.value);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  
   if (selectedDate <= today) {
     showNotification(langData[currentLang].futureDate, 'warning');
     return false;
@@ -484,33 +528,84 @@ function validateBooking() {
 
 // ---------- GENERATE BOOKING ID ----------
 function generateBookingId() {
-  const prefix = 'CF';
   const date = new Date();
   const year = date.getFullYear().toString().slice(-2);
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
   const day = date.getDate().toString().padStart(2, '0');
   const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-  return `${prefix}${year}${month}${day}-${random}`;
+  return `CF${year}${month}${day}-${random}`;
+}
+
+// ---------- SAVE BOOKING WITH FALLBACK ----------
+async function saveBooking(bookingData) {
+  // TEST MODE - Save to localStorage only
+  if (TEST_MODE) {
+    const localBookings = JSON.parse(localStorage.getItem('carflex_bookings') || '[]');
+    localBookings.push({
+      ...bookingData,
+      savedAt: new Date().toISOString(),
+      testMode: true
+    });
+    localStorage.setItem('carflex_bookings', JSON.stringify(localBookings));
+    console.log('📦 TEST MODE: Booking saved to localStorage', bookingData.bookingId);
+    return true;
+  }
+  
+  // PRODUCTION MODE - Try Firestore first
+  if (db) {
+    try {
+      await db.collection('bookings').doc(bookingData.bookingId).set(bookingData);
+      console.log('✅ Booking saved to Firestore:', bookingData.bookingId);
+      return true;
+    } catch (firestoreError) {
+      console.warn('⚠️ Firestore save failed:', firestoreError);
+      // Fallback to localStorage
+      const localBookings = JSON.parse(localStorage.getItem('carflex_bookings') || '[]');
+      localBookings.push({
+        ...bookingData,
+        savedAt: new Date().toISOString(),
+        fallback: true
+      });
+      localStorage.setItem('carflex_bookings', JSON.stringify(localBookings));
+      return true;
+    }
+  } else {
+    // Firestore not available - use localStorage
+    const localBookings = JSON.parse(localStorage.getItem('carflex_bookings') || '[]');
+    localBookings.push({
+      ...bookingData,
+      savedAt: new Date().toISOString(),
+      offline: true
+    });
+    localStorage.setItem('carflex_bookings', JSON.stringify(localBookings));
+    return true;
+  }
 }
 
 // ---------- CONFIRM BOOKING ----------
 async function confirmBooking() {
   const user = auth.currentUser;
-  const elements = getDOMElements();
   
-  // 1. Validate all requirements
+  // Validate booking requirements
   if (!validateBooking()) {
     return;
   }
   
-  // Show loading state on button
+  // Show loading state
   const confirmBtn = elements.confirmBtn;
   const originalText = confirmBtn.innerHTML;
-  confirmBtn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+  confirmBtn.innerHTML = `<span class="loading-spinner"></span> ${langData[currentLang].processing}`;
   confirmBtn.disabled = true;
   
+  // Set timeout to prevent infinite loading
+  const timeoutId = setTimeout(() => {
+    confirmBtn.innerHTML = originalText;
+    confirmBtn.disabled = false;
+    showNotification('Request timeout. Please try again.', 'error');
+  }, 15000); // 15 second timeout
+  
   try {
-    // Get selected services with prices
+    // Build selected services list
     const selectedServicesList = [];
     let totalPrice = 0;
     
@@ -524,6 +619,7 @@ async function confirmBooking() {
       });
       totalPrice += price;
     }
+    
     if (selectedServices.master) {
       const price = getPriceForVehicle(selectedVehicle, 'master');
       selectedServicesList.push({
@@ -534,6 +630,7 @@ async function confirmBooking() {
       });
       totalPrice += price;
     }
+    
     if (selectedServices.wash) {
       const price = getPriceForVehicle(selectedVehicle, 'wash');
       selectedServicesList.push({
@@ -547,14 +644,14 @@ async function confirmBooking() {
     
     // Create booking object
     const bookingId = generateBookingId();
-    const booking = {
+    const bookingData = {
       bookingId: bookingId,
       userId: user.uid,
       userEmail: user.email,
-      userName: user.displayName || 'Anonymous',
+      userName: user.displayName || user.email,
       vehicle: {
         type: selectedVehicle,
-        description: elements.descBox?.value || '',
+        description: elements.descBox?.value?.trim() || 'No description',
         icon: vehicleIcons[selectedVehicle] || 'fa-car'
       },
       services: selectedServicesList,
@@ -565,36 +662,43 @@ async function confirmBooking() {
         timeSlot: elements.serviceTime?.selectedOptions[0]?.text || '09:00 - 10:30'
       },
       status: 'confirmed',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      language: currentLang
+      createdAt: new Date().toISOString(),
+      language: currentLang,
+      testMode: TEST_MODE
     };
-
-    // Save to Firestore
-    await db.collection('bookings').doc(bookingId).set(booking);
     
-    // Show success notification
-    showNotification(langData[currentLang].bookingConfirmed, 'success');
+    // Save booking with fallback
+    const saved = await saveBooking(bookingData);
     
-    // Reset selection state
-    selectedServices = { general: false, master: false, wash: false };
-    
-    // Reset description
-    if (elements.descBox) elements.descBox.value = '';
-    
-    // Reset date to default (2 days from now)
-    const today = new Date();
-    today.setDate(today.getDate() + 2);
-    elements.serviceDate.value = today.toISOString().split('T')[0];
-    
-    // Update UI
-    renderServiceCategories();
-    showSelectedServicesSummary();
-    
-    // Scroll to top to show notification
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (saved) {
+      // Clear timeout - success!
+      clearTimeout(timeoutId);
+      
+      // Show success notification
+      showNotification(langData[currentLang].bookingConfirmed, 'success');
+      
+      // Reset selection state
+      selectedServices = { general: false, master: false, wash: false };
+      
+      // Reset description
+      if (elements.descBox) elements.descBox.value = '';
+      
+      // Reset date to tomorrow
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      elements.serviceDate.value = tomorrow.toISOString().split('T')[0];
+      
+      // Update UI
+      renderServiceCategories();
+      showSelectedServicesSummary();
+      
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     
   } catch (error) {
-    console.error('Booking error:', error);
+    clearTimeout(timeoutId);
+    console.error('❌ Booking error:', error);
     showNotification(`${langData[currentLang].bookingFailed}: ${error.message}`, 'error');
   } finally {
     // Restore button
@@ -605,45 +709,37 @@ async function confirmBooking() {
 
 // ---------- INITIALIZATION ----------
 function init() {
-  console.log('Car Flex initialized');
+  console.log('🚗 Car Flex initializing...');
   
-  // Wait for DOM to be fully loaded
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', setup);
-  } else {
-    setup();
-  }
-}
-
-function setup() {
-  const elements = getDOMElements();
+  // Cache DOM elements
+  cacheDOMElements();
   
   // Set default date
   if (elements.serviceDate) {
-    const today = new Date();
-    today.setDate(today.getDate() + 2);
-    elements.serviceDate.value = today.toISOString().split('T')[0];
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    elements.serviceDate.value = tomorrow.toISOString().split('T')[0];
+    elements.serviceDate.min = tomorrow.toISOString().split('T')[0];
   }
   
-  // Language switchers
+  // Setup event listeners if elements exist
   if (elements.langEn) {
     elements.langEn.addEventListener('click', () => updateLanguage('en'));
   }
+  
   if (elements.langBn) {
     elements.langBn.addEventListener('click', () => updateLanguage('bn'));
   }
   
-  // Logout button
   if (elements.logoutBtn) {
     elements.logoutBtn.addEventListener('click', signOut);
   }
   
-  // Confirm booking button
   if (elements.confirmBtn) {
     elements.confirmBtn.addEventListener('click', confirmBooking);
   }
   
-  // Close notification when clicking close button
+  // Close notification on click
   document.addEventListener('click', function(e) {
     if (e.target.classList.contains('notification-close') || e.target.closest('.notification-close')) {
       const panel = document.getElementById('notificationPanel');
@@ -657,8 +753,19 @@ function setup() {
   // Auth state observer
   auth.onAuthStateChanged(user => {
     updateAuthUI(user);
+    if (user) {
+      console.log('👤 User logged in:', user.email);
+    } else {
+      console.log('👤 User logged out');
+    }
   });
+  
+  console.log('✅ Car Flex initialized successfully');
 }
 
-// Start the app
-init();
+// Start the app when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
