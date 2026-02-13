@@ -1,4 +1,5 @@
 // ===== auth.js – ONLY for Login and Signup pages =====
+// FIXED VERSION - Proper error handling and redirects
 
 const firebaseConfig = {
   apiKey: "AIzaSyB9OEjBRYc9WeqJ5yUcA9BOP8Ju2PIMb-c",
@@ -9,59 +10,74 @@ const firebaseConfig = {
   appId: "1:357221879980:web:ab4d0240083e63f3530f09"
 };
 
-// 1. Initialize Firebase (Check if already initialized to prevent errors)
+// Initialize Firebase
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
-// 2. Define Auth once
 const auth = firebase.auth();
 
 // ---------- GOOGLE SIGN-IN ----------
-function signInWithGoogle() {
+async function signInWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider)
-    .then((result) => {
-      window.location.href = 'index.html';
-    })
-    .catch(error => {
-      // 🔥 NOW YOU WILL SEE THE REAL ERROR CODE
-      console.error("FULL ERROR OBJECT:", error);
-      alert(`Sign-in failed!\n\nError Code: ${error.code}\nMessage: ${error.message}`);
-    });
+  try {
+    const result = await auth.signInWithPopup(provider);
+    console.log("User logged in:", result.user.email);
+    window.location.href = 'index.html';
+    return result;
+  } catch (error) {
+    console.error("Google Sign-In Error:", error);
+    throw error;
+  }
 }
 
 // ---------- EMAIL SIGN-UP ----------
-function signUpWithEmail(email, password) {
-  auth.createUserWithEmailAndPassword(email, password)
-    .then(() => {
-      window.location.href = 'index.html';
-    })
-    .catch(error => {
-      console.error(error);
-      alert(error.message);
-    });
+async function signUpWithEmail(email, password) {
+  try {
+    const result = await auth.createUserWithEmailAndPassword(email, password);
+    console.log("User created:", result.user.email);
+    window.location.href = 'index.html';
+    return result;
+  } catch (error) {
+    console.error("Sign-up Error:", error);
+    throw error;
+  }
 }
 
 // ---------- EMAIL SIGN-IN ----------
-function signInWithEmail(email, password) {
-  auth.signInWithEmailAndPassword(email, password)
-    .then(() => {
-      window.location.href = 'index.html';
-    })
-    .catch(error => {
-      console.error(error);
-      alert(error.message);
-    });
+async function signInWithEmail(email, password) {
+  try {
+    const result = await auth.signInWithEmailAndPassword(email, password);
+    console.log("User logged in:", result.user.email);
+    window.location.href = 'index.html';
+    return result;
+  } catch (error) {
+    console.error("Login Error:", error);
+    throw error;
+  }
 }
 
 // ---------- PASSWORD RESET ----------
-function resetPassword(email) {
-  auth.sendPasswordResetEmail(email)
-    .then(() => {
-      alert('Password reset email sent!');
-    })
-    .catch(error => {
-      alert(error.message);
-    });
+async function resetPassword(email) {
+  try {
+    await auth.sendPasswordResetEmail(email);
+    console.log("Password reset email sent to:", email);
+    return true;
+  } catch (error) {
+    console.error("Password Reset Error:", error);
+    throw error;
+  }
+}
+
+// ---------- SIGNOUT ----------
+async function signOut() {
+  try {
+    await auth.signOut();
+    console.log("User signed out");
+    window.location.href = 'index.html';
+    return true;
+  } catch (error) {
+    console.error("Signout Error:", error);
+    throw error;
+  }
 }
