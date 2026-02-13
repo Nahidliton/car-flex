@@ -45,7 +45,7 @@ try {
 const langData = {
   en: {
     brand: "Car Flex",
-    viewerMsg: "👋 Browse all features — no login needed. Sign up only to book.",
+    viewerMsg: "Deal with your Dream Vehicle",
     vehicleSec: "1. Choose your vehicle",
     vehicleBadge: "required",
     descPlaceholder: "📝 Describe your vehicle (model, condition, special requests...)",
@@ -57,7 +57,7 @@ const langData = {
     loginTxt: "Log in",
     signupTxt: "Sign up",
     logoutTxt: "Log out",
-    footer: "🚗 Car Flex — premium vehicle care. © 2025",
+    footer: "Nahid Liton | Car Flex — Premium Vehicle Care. © 2026",
     vehicleTypes: ["Bike", "Car", "Microbus", "Coaster", "Truck", "Bus"],
     cat1: "General Servicing",
     cat2: "Master Servicing",
@@ -76,7 +76,7 @@ const langData = {
   },
   bn: {
     brand: "Car Flex",
-    viewerMsg: "👋 সমস্ত ফিচার দেখুন — লগইন ছাড়া। বুকিংয়ের জন্য শুধু সাইন আপ।",
+    //viewerMsg: "👋 সমস্ত ফিচার দেখুন — লগইন ছাড়া। বুকিংয়ের জন্য শুধু সাইন আপ।",
     vehicleSec: "১. আপনার গাড়ি বেছে নিন",
     vehicleBadge: "আবশ্যক",
     descPlaceholder: "📝 আপনার গাড়ির বিবরণ দিন (মডেল, অবস্থা, বিশেষ অনুরোধ...)",
