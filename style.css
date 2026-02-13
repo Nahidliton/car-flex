@@ -1,6 +1,6 @@
 /* ===== CAR FLEX - PREMIUM VEHICLE CARE ===== */
 /* ===== MAIN STYLESHEET ===== */
-/* ===== VERSION: 2.0.0 ===== */
+/* ===== VERSION: 3.0.0 ===== */
 /* ===== LAST UPDATED: 2026 ===== */
 
 /* -------------------------------------------- */
@@ -20,7 +20,7 @@
 /* 7.  Section Titles & Badges
 /* 8.  Vehicle Selection
 /* 9.  Description Box
-/* 10. Service Cards
+/* 10. SERVICE CARDS (ORIGINAL DESIGN - RESTORED)
 /* 11. Selected Services Summary
 /* 12. Booking Section
 /* 13. Auth Notice
@@ -28,12 +28,9 @@
 /* 15. Confirm Booking Button
 /* 16. User Greeting
 /* 17. Loading Spinner
-/* 18. Footer & Developer Contact
+/* 18. FOOTER & DEVELOPER CONTACT (FIXED)
 /* 19. Auth Pages (Login/Signup)
 /* 20. Responsive Design
-/*     20.1 Tablet (max-width: 768px)
-/*     20.2 Mobile (max-width: 480px)
-/*     20.3 Small Mobile (max-width: 360px)
 /* 
 /* -------------------------------------------- */
 
@@ -116,11 +113,15 @@ body {
   position: relative;
 }
 
+
+
+
 /* ===== 3. TYPOGRAPHY ===== */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   line-height: 1.2;
   color: var(--text-dark);
+  margin-bottom: 0.5rem;
 }
 
 p {
@@ -518,7 +519,7 @@ a:hover {
 
 
 
-/* ===== 10. SERVICE CARDS ===== */
+/* ===== 10. SERVICE CARDS - ORIGINAL DESIGN RESTORED ===== */
 .service-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -532,7 +533,7 @@ a:hover {
   padding: 2rem 1.8rem;
   box-shadow: 0 10px 24px var(--shadow-color);
   transition: var(--transition);
-  border: 2px solid transparent;
+  border: 2px solid var(--border-light);
   display: flex;
   flex-direction: column;
   cursor: pointer;
@@ -553,9 +554,9 @@ a:hover {
 }
 
 .service-cat:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 24px 36px var(--shadow-hover-color);
-  border-color: var(--primary-soft);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 32px var(--shadow-hover-color);
+  border-color: var(--primary);
 }
 
 .service-cat:hover::before {
@@ -584,6 +585,12 @@ a:hover {
 .service-cat h3 i {
   color: var(--primary);
   font-size: 1.8rem;
+  transition: var(--transition);
+}
+
+.service-cat:hover h3 i {
+  transform: scale(1.1);
+  color: var(--primary-dark);
 }
 
 .vehicle-type-badge {
@@ -598,11 +605,23 @@ a:hover {
   align-items: center;
   gap: 6px;
   margin-left: 8px;
+  transition: var(--transition);
+}
+
+.service-cat:hover .vehicle-type-badge {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary-dark);
+}
+
+.service-cat:hover .vehicle-type-badge i {
+  color: white;
 }
 
 .vehicle-type-badge i {
   font-size: 0.85rem;
   color: var(--primary-dark);
+  transition: var(--transition);
 }
 
 .selected-badge {
@@ -619,6 +638,7 @@ a:hover {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   animation: fadeIn 0.3s ease;
+  box-shadow: 0 2px 8px rgba(46, 125, 94, 0.3);
 }
 
 .selected-badge i {
@@ -657,6 +677,7 @@ a:hover {
 .service-list li:hover {
   padding-left: 5px;
   color: var(--primary-dark);
+  background: rgba(42, 111, 151, 0.02);
 }
 
 .service-list li:last-child {
@@ -668,9 +689,15 @@ a:hover {
   font-size: 1rem;
   width: 20px;
   text-align: center;
+  transition: var(--transition);
 }
 
-/* ===== PRICE TAG ===== */
+.service-list li:hover i {
+  transform: scale(1.2);
+  color: var(--primary);
+}
+
+/* ----- PRICE TAG ----- */
 .price-tag {
   margin-top: 1.2rem;
   padding: 1.2rem 1.5rem;
@@ -682,6 +709,11 @@ a:hover {
   border-left: 6px solid var(--primary);
   font-weight: 600;
   transition: var(--transition);
+}
+
+.service-cat:hover .price-tag {
+  background: var(--primary-soft);
+  border-left-width: 8px;
 }
 
 .service-selected .price-tag {
@@ -699,6 +731,7 @@ a:hover {
 
 .price-label i {
   color: var(--primary);
+  font-size: 1.1rem;
 }
 
 .price-amount {
@@ -706,6 +739,12 @@ a:hover {
   font-weight: 800;
   color: var(--primary-dark);
   letter-spacing: -0.5px;
+  transition: var(--transition);
+}
+
+.service-cat:hover .price-amount {
+  transform: scale(1.05);
+  color: var(--primary);
 }
 
 .price-amount small {
@@ -713,6 +752,11 @@ a:hover {
   font-weight: 600;
   color: var(--text-soft);
   margin-left: 5px;
+  transition: var(--transition);
+}
+
+.service-cat:hover .price-amount small {
+  color: var(--primary-dark);
 }
 
 
@@ -725,6 +769,7 @@ a:hover {
   padding: 1.8rem;
   margin: 2rem 0;
   border-left: 6px solid var(--primary);
+  box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .selected-services-summary h4 {
@@ -745,7 +790,7 @@ a:hover {
 .selected-services-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 1.2rem;
 }
 
@@ -767,12 +812,20 @@ a:hover {
 .service-tag:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 12px var(--shadow-hover-color);
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
 }
 
 .service-tag i {
   margin-right: 8px;
   color: var(--success);
   font-size: 1rem;
+  transition: var(--transition);
+}
+
+.service-tag:hover i {
+  color: white;
 }
 
 .total-price {
@@ -791,6 +844,12 @@ a:hover {
   color: var(--success);
   font-size: 1.6rem;
   letter-spacing: -0.5px;
+  transition: var(--transition);
+}
+
+.total-price:hover span:last-child {
+  transform: scale(1.05);
+  color: var(--primary);
 }
 
 
@@ -1009,7 +1068,7 @@ a:hover {
 
 
 
-/* ===== 18. FOOTER & DEVELOPER CONTACT ===== */
+/* ===== 18. FOOTER & DEVELOPER CONTACT - FIXED ===== */
 footer {
   text-align: center;
   margin-top: 4rem;
@@ -1017,11 +1076,13 @@ footer {
   color: var(--text-soft);
   font-weight: 500;
   border-top: 1px solid var(--border-soft);
+  background: white;
+  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
 }
 
 .developer-contact {
-  margin-top: 2rem;
-  padding-top: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .contact-divider {
@@ -1040,11 +1101,11 @@ footer {
 
 .contact-divider span {
   padding: 0 1.2rem;
-  color: var(--text-soft);
-  font-size: 0.9rem;
-  font-weight: 600;
+  color: var(--primary-dark);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 4px;
   text-transform: uppercase;
-  letter-spacing: 3px;
 }
 
 .developer-info {
@@ -1052,16 +1113,24 @@ footer {
 }
 
 .developer-info h3 {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   font-weight: 800;
   color: var(--primary-dark);
   margin-bottom: 0.5rem;
+  letter-spacing: -0.5px;
 }
 
 .developer-info p {
-  font-size: 0.95rem;
+  font-size: 1rem;
   color: var(--text-soft);
-  margin-bottom: 0;
+  margin-bottom: 0.3rem;
+}
+
+.developer-info .university {
+  font-size: 0.9rem;
+  color: var(--primary);
+  font-weight: 500;
+  margin-top: 0.2rem;
 }
 
 .social-links {
@@ -1075,57 +1144,74 @@ footer {
 .social-link {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
-  padding: 0.7rem 1.6rem;
+  padding: 0.8rem 2rem;
   border-radius: var(--border-radius-full);
-  background: var(--card-bg);
-  border: 1px solid var(--border-soft);
+  background: white;
+  border: 2px solid var(--border-soft);
   color: var(--text-dark);
   text-decoration: none;
   font-weight: 600;
-  font-size: 0.95rem;
-  transition: var(--transition);
-  box-shadow: 0 4px 10px var(--shadow-color);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  min-width: 140px;
 }
 
 .social-link i {
   font-size: 1.3rem;
-  transition: var(--transition);
+  transition: all 0.3s ease;
 }
 
-.social-link:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px var(--shadow-hover-color);
-}
-
+/* GitHub Hover */
 .social-link.github:hover {
   background: #24292e;
-  color: white;
   border-color: #24292e;
+  color: white;
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(36, 41, 46, 0.2);
 }
 
+.social-link.github:hover i {
+  color: white;
+}
+
+/* LinkedIn Hover */
 .social-link.linkedin:hover {
   background: #0077b5;
-  color: white;
   border-color: #0077b5;
+  color: white;
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 119, 181, 0.2);
 }
 
+.social-link.linkedin:hover i {
+  color: white;
+}
+
+/* Gmail Hover */
 .social-link.gmail:hover {
   background: #ea4335;
-  color: white;
   border-color: #ea4335;
+  color: white;
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(234, 67, 53, 0.2);
+}
+
+.social-link.gmail:hover i {
+  color: white;
 }
 
 .copyright {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
   border-top: 1px dashed var(--border-soft);
-  font-size: 0.95rem;
 }
 
 .copyright p {
   color: var(--primary-dark);
   font-weight: 600;
+  font-size: 0.95rem;
   letter-spacing: 0.5px;
   margin-bottom: 0;
 }
