@@ -1,4 +1,5 @@
 // ===== script.js – Main Logic for index.html =====
+// COMPLETE VERSION WITH FULL BOOKING FUNCTIONALITY
 
 const firebaseConfig = {
   apiKey: "AIzaSyB9OEjBRYc9WeqJ5yUcA9BOP8Ju2PIMb-c",
@@ -39,7 +40,15 @@ const langData = {
     cat1: "General Servicing",
     cat2: "Master Servicing", 
     cat3: "Wash Vehicle",
-    priceLabel: "Price"
+    priceLabel: "Price",
+    selectDate: "Please select a date",
+    selectVehicle: "Please select a vehicle",
+    selectService: "Please select at least one service",
+    futureDate: "Please select a future date",
+    loginRequired: "Please log in or sign up to confirm your booking",
+    bookingConfirmed: "✅ Your booking is confirmed!",
+    bookingFailed: "❌ Booking failed",
+    confirmBooking: "Confirm Booking"
   },
   bn: {
     brand: "কার ফ্লেক্স",
@@ -60,7 +69,15 @@ const langData = {
     cat1: "জেনারেল সার্ভিসিং",
     cat2: "মাস্টার সার্ভিসিং",
     cat3: "ওয়াশ ভেহিকল",
-    priceLabel: "মূল্য"
+    priceLabel: "মূল্য",
+    selectDate: "তারিখ নির্বাচন করুন",
+    selectVehicle: "গাড়ি নির্বাচন করুন",
+    selectService: "অন্তত একটি সেবা নির্বাচন করুন",
+    futureDate: "ভবিষ্যতের তারিখ নির্বাচন করুন",
+    loginRequired: "বুকিং নিশ্চিত করতে লগইন বা সাইন আপ করুন",
+    bookingConfirmed: "✅ আপনার বুকিং নিশ্চিত করা হয়েছে!",
+    bookingFailed: "❌ বুকিং ব্যর্থ হয়েছে",
+    confirmBooking: "বুকিং নিশ্চিত করুন"
   }
 };
 
@@ -127,6 +144,11 @@ const vehicleIcons = {
 // ---------- STATE MANAGEMENT ----------
 let currentLang = 'en';
 let selectedVehicle = 'Car';
+let selectedServices = {
+  general: false,
+  master: false,
+  wash: false
+};
 
 // ---------- DOM ELEMENTS - Wait for DOM to be ready ----------
 function getDOMElements() {
@@ -155,7 +177,10 @@ function getDOMElements() {
     userGreeting: document.getElementById('userGreeting'),
     userDisplayName: document.getElementById('userDisplayName'),
     logoutBtn: document.getElementById('logoutBtn'),
-    confirmBtn: document.getElementById('confirmBookingBtn')
+    confirmBtn: document.getElementById('confirmBookingBtn'),
+    notificationPanel: document.getElementById('notificationPanel'),
+    notificationMessage: document.getElementById('notificationMessage'),
+    selectedServicesSummary: document.querySelector('.selected-services-summary')
   };
 }
 
@@ -180,7 +205,89 @@ function getPriceForVehicle(type, cat) {
   return p[cat] || 0;
 }
 
-// ---------- RENDER LOGIC ----------
+function calculateTotalPrice() {
+  let total = 0;
+  if (selectedServices.general) total += getPriceForVehicle(selectedVehicle, 'general');
+  if (selectedServices.master) total += getPriceForVehicle(selectedVehicle, 'master');
+  if (selectedServices.wash) total += getPriceForVehicle(selectedVehicle, 'wash');
+  return total;
+}
+
+// ---------- NOTIFICATION SYSTEM ----------
+function showNotification(message, type = 'success') {
+  const elements = getDOMElements();
+  const panel = elements.notificationPanel;
+  const messageEl = elements.notificationMessage;
+  
+  if (!panel || !messageEl) return;
+  
+  messageEl.textContent = message;
+  panel.className = 'notification-panel';
+  panel.classList.add(type);
+  panel.style.display = 'block';
+  
+  // Auto hide after 5 seconds for success messages
+  if (type === 'success') {
+    setTimeout(() => {
+      panel.style.display = 'none';
+    }, 5000);
+  }
+}
+
+// ---------- TOGGLE SERVICE SELECTION ----------
+function toggleService(serviceKey) {
+  selectedServices[serviceKey] = !selectedServices[serviceKey];
+  renderServiceCategories();
+  showSelectedServicesSummary();
+}
+
+// ---------- SHOW SELECTED SERVICES SUMMARY ----------
+function showSelectedServicesSummary() {
+  const container = document.querySelector('.selected-services-summary');
+  if (!container) return;
+  
+  const selected = [];
+  if (selectedServices.general) selected.push({
+    name: langData[currentLang].cat1,
+    price: getPriceForVehicle(selectedVehicle, 'general')
+  });
+  if (selectedServices.master) selected.push({
+    name: langData[currentLang].cat2,
+    price: getPriceForVehicle(selectedVehicle, 'master')
+  });
+  if (selectedServices.wash) selected.push({
+    name: langData[currentLang].cat3,
+    price: getPriceForVehicle(selectedVehicle, 'wash')
+  });
+  
+  const totalPrice = calculateTotalPrice();
+  
+  let html = `
+    <h4><i class="fas fa-clipboard-list"></i> ${currentLang === 'en' ? 'Selected Services:' : 'নির্বাচিত সেবা:'}</h4>
+  `;
+  
+  if (selected.length > 0) {
+    html += '<div>';
+    selected.forEach(service => {
+      html += `<span class="service-tag">
+        <i class="fas fa-check-circle"></i> ${service.name} - ৳${service.price.toLocaleString('en-BD')}
+      </span>`;
+    });
+    html += '</div>';
+    html += `<div class="total-price">
+      <span>${currentLang === 'en' ? 'Total Price:' : 'মোট মূল্য:'}</span>
+      <span>৳${totalPrice.toLocaleString('en-BD')} BDT</span>
+    </div>`;
+  } else {
+    html += `<p style="color: var(--text-soft);">
+      ${currentLang === 'en' ? 'Click on any service package above to select it.' : 'উপরে যেকোনো সেবা প্যাকেজে ক্লিক করে নির্বাচন করুন।'}
+    </p>`;
+  }
+  
+  container.innerHTML = html;
+}
+
+// ---------- RENDER VEHICLES ----------
 function renderVehicles() {
   const elements = getDOMElements();
   if (!elements.vehicleGrid) return;
@@ -206,10 +313,12 @@ function renderVehicles() {
       selectedVehicle = currentLang === 'en' ? raw : mapToEnglish(raw);
       renderVehicles();
       renderServiceCategories();
+      showSelectedServicesSummary();
     });
   });
 }
 
+// ---------- RENDER SERVICE CATEGORIES ----------
 function renderServiceCategories() {
   const elements = getDOMElements();
   if (!elements.serviceContainer) return;
@@ -225,8 +334,9 @@ function renderServiceCategories() {
     const items = getServicesForVehicle(selectedVehicle, cat.key);
     const price = getPriceForVehicle(selectedVehicle, cat.key);
     const list = items.map(i => `<li><i class="fas fa-check-circle"></i> ${i}</li>`).join('');
+    const isSelected = selectedServices[cat.key];
     
-    html += `<div class="service-cat">
+    html += `<div class="service-cat ${isSelected ? 'service-selected' : ''}" data-service-key="${cat.key}">
       <h3>
         <i class="fas ${cat.icon}"></i> 
         ${cat.name}
@@ -234,6 +344,7 @@ function renderServiceCategories() {
           <i class="fas ${vehicleIcons[selectedVehicle] || 'fa-car'}"></i>
           ${currentLang === 'en' ? selectedVehicle : mapToBangla(selectedVehicle)}
         </span>
+        ${isSelected ? '<span class="selected-badge"><i class="fas fa-check-circle"></i> Selected</span>' : ''}
       </h3>
       <ul class="service-list">${list || '<li>No services listed</li>'}</ul>
       <div class="price-tag">
@@ -244,6 +355,17 @@ function renderServiceCategories() {
   });
   
   elements.serviceContainer.innerHTML = html;
+  
+  // Add click handlers to service cards
+  document.querySelectorAll('.service-cat').forEach(card => {
+    card.addEventListener('click', function(e) {
+      if (e.target.closest('.price-tag') || e.target.closest('.service-list li')) {
+        return;
+      }
+      const serviceKey = this.dataset.serviceKey;
+      toggleService(serviceKey);
+    });
+  });
 }
 
 // ---------- UI UPDATES ----------
@@ -266,12 +388,19 @@ function updateLanguage(lang) {
   if (elements.signupTxt) elements.signupTxt.innerText = d.signupTxt;
   if (elements.logoutTxt) elements.logoutTxt.innerText = d.logoutTxt;
   if (elements.footerText) elements.footerText.innerText = d.footer;
+  if (elements.confirmBtn) {
+    const icon = elements.confirmBtn.querySelector('i');
+    elements.confirmBtn.innerHTML = '';
+    if (icon) elements.confirmBtn.appendChild(icon);
+    elements.confirmBtn.appendChild(document.createTextNode(` ${d.confirmBooking}`));
+  }
   
   if (elements.langEn) elements.langEn.classList.toggle('active', lang === 'en');
   if (elements.langBn) elements.langBn.classList.toggle('active', lang === 'bn');
   
   renderVehicles();
   renderServiceCategories();
+  showSelectedServicesSummary();
 }
 
 function updateAuthUI(user) {
@@ -295,50 +424,186 @@ function signInWithGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider).catch(e => {
     console.error(e);
-    alert('Sign in failed: ' + e.message);
+    showNotification('Sign in failed: ' + e.message, 'error');
   });
 }
 
 function signOut() {
-  auth.signOut();
+  auth.signOut().then(() => {
+    showNotification(currentLang === 'en' ? 'Logged out successfully' : 'লগআউট সফল হয়েছে', 'success');
+  });
 }
 
-// ---------- BOOKING ----------
+// ---------- VALIDATE BOOKING ----------
+function validateBooking() {
+  const elements = getDOMElements();
+  
+  // Check if user is logged in
+  if (!auth.currentUser) {
+    showNotification(langData[currentLang].loginRequired, 'warning');
+    setTimeout(() => {
+      if (confirm(currentLang === 'en' ? 'You need to login first. Go to login page?' : 'প্রথমে লগইন প্রয়োজন। লগইন পৃষ্ঠায় যাবেন?')) {
+        window.location.href = 'login.html';
+      }
+    }, 1000);
+    return false;
+  }
+  
+  // Check if vehicle is selected
+  if (!selectedVehicle) {
+    showNotification(langData[currentLang].selectVehicle, 'warning');
+    document.getElementById('vehicleSecTitle')?.scrollIntoView({ behavior: 'smooth' });
+    return false;
+  }
+  
+  // Check if at least one service is selected
+  if (!selectedServices.general && !selectedServices.master && !selectedServices.wash) {
+    showNotification(langData[currentLang].selectService, 'warning');
+    document.getElementById('serviceSecTitle')?.scrollIntoView({ behavior: 'smooth' });
+    return false;
+  }
+  
+  // Check if date is selected
+  if (!elements.serviceDate?.value) {
+    showNotification(langData[currentLang].selectDate, 'warning');
+    elements.serviceDate?.focus();
+    return false;
+  }
+  
+  // Check if date is at least tomorrow
+  const selectedDate = new Date(elements.serviceDate.value);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (selectedDate <= today) {
+    showNotification(langData[currentLang].futureDate, 'warning');
+    return false;
+  }
+  
+  return true;
+}
+
+// ---------- GENERATE BOOKING ID ----------
+function generateBookingId() {
+  const prefix = 'CF';
+  const date = new Date();
+  const year = date.getFullYear().toString().slice(-2);
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+  return `${prefix}${year}${month}${day}-${random}`;
+}
+
+// ---------- CONFIRM BOOKING ----------
 async function confirmBooking() {
   const user = auth.currentUser;
   const elements = getDOMElements();
   
-  if (!user) {
-    signInWithGoogle();
+  // 1. Validate all requirements
+  if (!validateBooking()) {
     return;
   }
   
-  const date = elements.serviceDate?.value;
-  if (!date) {
-    alert(currentLang === 'en' ? 'Please select a date' : 'তারিখ নির্বাচন করুন');
-    return;
-  }
-
-  const booking = {
-    userId: user.uid,
-    email: user.email,
-    vehicle: selectedVehicle,
-    desc: elements.descBox?.value || '',
-    date: date,
-    time: elements.serviceTime?.value || '09:00',
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  };
-
+  // Show loading state on button
+  const confirmBtn = elements.confirmBtn;
+  const originalText = confirmBtn.innerHTML;
+  confirmBtn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+  confirmBtn.disabled = true;
+  
   try {
-    await db.collection('bookings').add(booking);
-    alert('✅ Booking Confirmed!');
-  } catch (e) {
-    console.error(e);
-    alert('Booking Failed: ' + e.message);
+    // Get selected services with prices
+    const selectedServicesList = [];
+    let totalPrice = 0;
+    
+    if (selectedServices.general) {
+      const price = getPriceForVehicle(selectedVehicle, 'general');
+      selectedServicesList.push({
+        name: langData[currentLang].cat1,
+        key: 'general',
+        price: price,
+        items: getServicesForVehicle(selectedVehicle, 'general')
+      });
+      totalPrice += price;
+    }
+    if (selectedServices.master) {
+      const price = getPriceForVehicle(selectedVehicle, 'master');
+      selectedServicesList.push({
+        name: langData[currentLang].cat2,
+        key: 'master',
+        price: price,
+        items: getServicesForVehicle(selectedVehicle, 'master')
+      });
+      totalPrice += price;
+    }
+    if (selectedServices.wash) {
+      const price = getPriceForVehicle(selectedVehicle, 'wash');
+      selectedServicesList.push({
+        name: langData[currentLang].cat3,
+        key: 'wash',
+        price: price,
+        items: getServicesForVehicle(selectedVehicle, 'wash')
+      });
+      totalPrice += price;
+    }
+    
+    // Create booking object
+    const bookingId = generateBookingId();
+    const booking = {
+      bookingId: bookingId,
+      userId: user.uid,
+      userEmail: user.email,
+      userName: user.displayName || 'Anonymous',
+      vehicle: {
+        type: selectedVehicle,
+        description: elements.descBox?.value || '',
+        icon: vehicleIcons[selectedVehicle] || 'fa-car'
+      },
+      services: selectedServicesList,
+      totalPrice: totalPrice,
+      schedule: {
+        date: elements.serviceDate.value,
+        time: elements.serviceTime?.value || '09:00',
+        timeSlot: elements.serviceTime?.selectedOptions[0]?.text || '09:00 - 10:30'
+      },
+      status: 'confirmed',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      language: currentLang
+    };
+
+    // Save to Firestore
+    await db.collection('bookings').doc(bookingId).set(booking);
+    
+    // Show success notification
+    showNotification(langData[currentLang].bookingConfirmed, 'success');
+    
+    // Reset selection state
+    selectedServices = { general: false, master: false, wash: false };
+    
+    // Reset description
+    if (elements.descBox) elements.descBox.value = '';
+    
+    // Reset date to default (2 days from now)
+    const today = new Date();
+    today.setDate(today.getDate() + 2);
+    elements.serviceDate.value = today.toISOString().split('T')[0];
+    
+    // Update UI
+    renderServiceCategories();
+    showSelectedServicesSummary();
+    
+    // Scroll to top to show notification
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+  } catch (error) {
+    console.error('Booking error:', error);
+    showNotification(`${langData[currentLang].bookingFailed}: ${error.message}`, 'error');
+  } finally {
+    // Restore button
+    confirmBtn.innerHTML = originalText;
+    confirmBtn.disabled = false;
   }
 }
 
-// ---------- INIT ----------
+// ---------- INITIALIZATION ----------
 function init() {
   console.log('Car Flex initialized');
   
@@ -377,6 +642,14 @@ function setup() {
   if (elements.confirmBtn) {
     elements.confirmBtn.addEventListener('click', confirmBooking);
   }
+  
+  // Close notification when clicking close button
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('notification-close') || e.target.closest('.notification-close')) {
+      const panel = document.getElementById('notificationPanel');
+      if (panel) panel.style.display = 'none';
+    }
+  });
   
   // Initial render
   updateLanguage('en');

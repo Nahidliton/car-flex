@@ -2,96 +2,178 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Car Flex · Log in</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+  <title>Car Flex · Premium Vehicle Care</title>
+  
+  <!-- Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="style.css">
-  <!-- Firebase (compat) -->
+  
+  <!-- Firebase SDK (Compat) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <div class="container" style="max-width: 500px;">
-    
-    <!-- Brand header (simple) -->
-    <div class="top-bar" style="justify-content: center; margin-bottom: 2.5rem;">
-      <div class="brand">
-        <i class="fas fa-car-side"></i>
-        <h1>Car Flex</h1>
-      </div>
-    </div>
-
-    <div class="auth-card">
-      <h2>Log in to your account</h2>
-      
-      <!-- Email/Password Form -->
-      <form id="loginForm">
-        <div class="form-group">
-          <label><i class="far fa-envelope"></i> Email</label>
-          <input type="email" id="email" class="auth-input" placeholder="your@email.com" required>
-        </div>
-        <div class="form-group">
-          <label><i class="fas fa-lock"></i> Password</label>
-          <input type="password" id="password" class="auth-input" placeholder="••••••••" required>
-        </div>
-        <button type="submit" class="btn btn-primary btn-block">Log in</button>
-      </form>
-
-      <div class="auth-divider">
-        <span>or</span>
-      </div>
-
-      <!-- Google Sign-In -->
-      <button id="googleSignInBtn" class="btn btn-outline btn-block">
-        <i class="fab fa-google"></i> Continue with Google
+  <!-- ===== NOTIFICATION PANEL ===== -->
+  <div id="notificationPanel" class="notification-panel" style="display: none;">
+    <div class="notification-content">
+      <i class="fas fa-check-circle"></i>
+      <span id="notificationMessage">Your booking is confirmed!</span>
+      <button class="notification-close" aria-label="Close">
+        <i class="fas fa-times"></i>
       </button>
-
-      <p class="auth-redirect">
-        Don't have an account? <a href="signup.html">Sign up</a>
-      </p>
-      <p class="auth-redirect">
-        <a href="#" id="forgotPassword">Forgot password?</a>
-      </p>
     </div>
-
-    <!-- Back to main page link -->
-    <div style="text-align: center; margin-top: 2rem;">
-      <a href="index.html" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Back to Booking</a>
-    </div>
-
   </div>
 
-  <script src="auth.js"></script>
+  <!-- ===== MAIN CONTAINER ===== -->
+  <div class="container">
+    
+    <!-- ===== TOP BAR with Brand, Auth & Language ===== -->
+    <div class="top-bar">
+      <div class="brand">
+        <i class="fas fa-car-side"></i>
+        <h1 id="brandName">Car Flex</h1>
+      </div>
+      
+      <div class="top-right-actions">
+        <!-- Auth Buttons (visible when logged out) -->
+        <div class="auth-buttons-top" id="authButtons">
+          <a href="login.html" class="btn btn-outline">
+            <i class="fas fa-sign-in-alt"></i> 
+            <span id="loginTxt">Log in</span>
+          </a>
+          <a href="signup.html" class="btn btn-primary">
+            <i class="fas fa-user-plus"></i> 
+            <span id="signupTxt">Sign up</span>
+          </a>
+        </div>
+        
+        <!-- User Greeting (visible when logged in) -->
+        <div class="user-greeting" id="userGreeting" style="display: none;">
+          <span id="userDisplayName">
+            <i class="fas fa-user-circle"></i> User
+          </span>
+          <button class="btn btn-outline" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i> 
+            <span id="logoutTxt">Log out</span>
+          </button>
+        </div>
+        
+        <!-- Language Switcher -->
+        <div class="lang-switch">
+          <i class="fas fa-globe"></i>
+          <button id="langEn" class="lang-btn active">EN</button>
+          <button id="langBn" class="lang-btn">বাংলা</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== VIEWER MESSAGE (No Login Required) ===== -->
+    <div class="viewer-note" id="viewerNote">
+      <i class="fas fa-eye"></i>
+      <span id="viewerMsg">👋 Browse all features — no login needed. Sign up only to book.</span>
+    </div>
+
+    <!-- ===== VEHICLE SELECTION SECTION ===== -->
+    <div class="section-title">
+      <h2 id="vehicleSecTitle">1. Choose your vehicle</h2>
+      <span class="badge" id="vehicleBadge">required</span>
+    </div>
+    
+    <!-- Vehicle Grid - Dynamically populated -->
+    <div class="vehicle-grid" id="vehicleGrid"></div>
+
+    <!-- ===== VEHICLE DESCRIPTION ===== -->
+    <div class="desc-area">
+      <textarea 
+        id="vehicleDesc" 
+        class="desc-box" 
+        rows="2" 
+        placeholder="📝 Describe your vehicle (model, condition, special requests...)"
+      ></textarea>
+    </div>
+
+    <!-- ===== SERVICE CATEGORIES SECTION ===== -->
+    <div class="section-title">
+      <h2 id="serviceSecTitle">2. Additional services</h2>
+      <span class="badge" id="serviceBadge">vehicle specific</span>
+    </div>
+    
+    <!-- Service Cards - Dynamically populated -->
+    <div class="service-row" id="serviceCatContainer"></div>
+    
+    <!-- ===== SELECTED SERVICES SUMMARY ===== -->
+    <div class="selected-services-summary">
+      <h4><i class="fas fa-clipboard-list"></i> Selected Services:</h4>
+      <p style="color: var(--text-soft);">Click on any service package above to select it.</p>
+    </div>
+
+    <!-- ===== BOOKING SECTION (Date & Time) ===== -->
+    <div class="booking-section">
+      <div class="booking-flex">
+        <div class="date-field">
+          <label class="booking-label" id="dateLabel">
+            <i class="far fa-calendar-alt"></i> Service date
+          </label>
+          <input type="date" id="serviceDate" class="date-input" min="">
+        </div>
+        <div class="time-field">
+          <label class="booking-label" id="timeLabel">
+            <i class="far fa-clock"></i> Time slot
+          </label>
+          <select id="serviceTime" class="time-select">
+            <option value="09:00">09:00 - 10:30</option>
+            <option value="11:00">11:00 - 12:30</option>
+            <option value="14:00">14:00 - 15:30</option>
+            <option value="16:00">16:00 - 17:30</option>
+            <option value="18:00">18:00 - 19:30</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== AUTHENTICATION NOTICE ===== -->
+    <div class="auth-notice" id="authPrompt">
+      <i class="fas fa-lock"></i>
+      <span id="authMsg">🔐 To confirm service, please log in or create an account.</span>
+    </div>
+
+    <!-- ===== DEMO FOOTNOTE ===== -->
+    <div class="demo-note" id="footnoteDemo">
+      ⚡ Demo: you can select vehicle, see dynamic service lists & prices — no login required for preview.
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+      <p id="footerText">🚗 Car Flex — premium vehicle care. © 2025</p>
+    </footer>
+  </div>
+
+  <!-- ===== FLOATING CONFIRM BOOKING BUTTON ===== -->
+  <div class="confirm-booking-wrapper">
+    <button id="confirmBookingBtn" class="confirm-btn">
+      <i class="fas fa-check-circle"></i> Confirm Booking
+    </button>
+  </div>
+
+  <!-- ===== CUSTOM JAVASCRIPT ===== -->
+  <script src="script.js"></script>
+  
   <script>
-    // DOM elements
-    const loginForm = document.getElementById('loginForm');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const googleBtn = document.getElementById('googleSignInBtn');
-    const forgotLink = document.getElementById('forgotPassword');
-
-    // Email/password login
-    loginForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const email = emailInput.value.trim();
-      const password = passwordInput.value.trim();
-      if (email && password) {
-        signInWithEmail(email, password);
-      }
-    });
-
-    // Google sign-in
-    googleBtn.addEventListener('click', signInWithGoogle);
-
-    // Password reset
-    forgotLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      const email = emailInput.value.trim();
-      if (email) {
-        resetPassword(email);
-      } else {
-        alert('Please enter your email address first.');
+    // Set minimum date to tomorrow for all date inputs
+    document.addEventListener('DOMContentLoaded', function() {
+      const dateInput = document.getElementById('serviceDate');
+      if (dateInput) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowFormatted = tomorrow.toISOString().split('T')[0];
+        dateInput.min = tomorrowFormatted;
       }
     });
   </script>
