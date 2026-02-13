@@ -4,22 +4,37 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
   <title>Car Flex · Premium Vehicle Care</title>
+  
   <!-- Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- CSS -->
+  
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="style.css">
+  
   <!-- Firebase SDK (Compat) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
-  <div class="container">
+  <!-- Notification Panel -->
+  <div id="notificationPanel" class="notification-panel" style="display: none;">
+    <div class="notification-content">
+      <i class="fas fa-check-circle"></i>
+      <span id="notificationMessage">Your booking is confirmed!</span>
+      <button class="notification-close" onclick="this.parentElement.parentElement.style.display='none'">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
 
-    <!-- Top Bar with Language Toggle & Auth Buttons -->
+  <!-- Main Container -->
+  <div class="container">
+    
+    <!-- Top Bar -->
     <div class="top-bar">
       <div class="brand">
         <i class="fas fa-car-side"></i>
@@ -27,17 +42,30 @@
       </div>
       
       <div class="top-right-actions">
-        <!-- Auth Buttons & User Info -->
+        <!-- Auth Buttons -->
         <div class="auth-buttons-top" id="authButtons">
-          <a href="login.html" class="btn btn-outline"><i class="fas fa-sign-in-alt"></i> <span id="loginTxt">Log in</span></a>
-          <a href="signup.html" class="btn btn-primary"><i class="fas fa-user-plus"></i> <span id="signupTxt">Sign up</span></a>
-        </div>
-        <!-- User greeting (hidden by default) -->
-        <div class="user-greeting" id="userGreeting" style="display: none;">
-          <span id="userDisplayName"><i class="fas fa-user-circle"></i> User</span>
-          <button class="btn btn-outline" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> <span id="logoutTxt">Log out</span></button>
+          <a href="login.html" class="btn btn-outline">
+            <i class="fas fa-sign-in-alt"></i> 
+            <span id="loginTxt">Log in</span>
+          </a>
+          <a href="signup.html" class="btn btn-primary">
+            <i class="fas fa-user-plus"></i> 
+            <span id="signupTxt">Sign up</span>
+          </a>
         </div>
         
+        <!-- User Greeting -->
+        <div class="user-greeting" id="userGreeting" style="display: none;">
+          <span id="userDisplayName">
+            <i class="fas fa-user-circle"></i> User
+          </span>
+          <button class="btn btn-outline" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i> 
+            <span id="logoutTxt">Log out</span>
+          </button>
+        </div>
+        
+        <!-- Language Switcher -->
         <div class="lang-switch">
           <i class="fas fa-globe"></i>
           <button id="langEn" class="lang-btn active">EN</button>
@@ -46,52 +74,52 @@
       </div>
     </div>
 
-    <!-- Viewer Message (No Login Required) -->
+    <!-- Viewer Message -->
     <div class="viewer-note" id="viewerNote">
       <i class="fas fa-eye"></i>
       <span id="viewerMsg">👋 Browse all features — no login needed. Sign up only to book.</span>
     </div>
 
-    <!-- Vehicle Selection Section -->
+    <!-- Vehicle Selection -->
     <div class="section-title">
       <h2 id="vehicleSecTitle">1. Choose your vehicle</h2>
       <span class="badge" id="vehicleBadge">required</span>
     </div>
     <div class="vehicle-grid" id="vehicleGrid"></div>
 
-    <!-- Description Box -->
+    <!-- Description -->
     <div class="desc-area">
-      <textarea id="vehicleDesc" class="desc-box" rows="2" placeholder="📝 Describe your vehicle (model, condition, special requests...)"></textarea>
+      <textarea 
+        id="vehicleDesc" 
+        class="desc-box" 
+        rows="2" 
+        placeholder="📝 Describe your vehicle (model, condition, special requests...)"
+      ></textarea>
     </div>
 
-    <!-- Service Categories Section -->
- 
-  <div class="section-title">
-    <h2 id="serviceSecTitle">2. Additional services</h2>
-    <span class="badge" id="serviceBadge">vehicle specific</span>
-  </div>
-  <div class="service-row" id="serviceCatContainer"></div>
+    <!-- Service Categories -->
+    <div class="section-title">
+      <h2 id="serviceSecTitle">2. Additional services</h2>
+      <span class="badge" id="serviceBadge">vehicle specific</span>
+    </div>
+    <div class="service-row" id="serviceCatContainer"></div>
+    
+    <!-- Selected Services Summary -->
+    <div class="selected-services-summary"></div>
 
-  <!-- 👇 ADD THIS - Selected Services Summary -->
-  <div class="selected-services-summary">
-    <h4><i class="fas fa-clipboard-list"></i> Selected Services:</h4>
-    <p style="color: var(--text-soft);">Click on any service package above to select it.</p>
-  </div>
-
-<!-- Booking Section (Date & Time) -->
-<div class="booking-section">
-  <!-- ... -->
-</div>
-
-    <!-- Booking Section (Date & Time) -->
+    <!-- Booking Section -->
     <div class="booking-section">
       <div class="booking-flex">
         <div class="date-field">
-          <label class="booking-label" id="dateLabel"><i class="far fa-calendar-alt"></i> Service date</label>
+          <label class="booking-label" id="dateLabel">
+            <i class="far fa-calendar-alt"></i> Service date
+          </label>
           <input type="date" id="serviceDate" class="date-input">
         </div>
         <div class="time-field">
-          <label class="booking-label" id="timeLabel"><i class="far fa-clock"></i> Time slot</label>
+          <label class="booking-label" id="timeLabel">
+            <i class="far fa-clock"></i> Time slot
+          </label>
           <select id="serviceTime" class="time-select">
             <option value="09:00">09:00 - 10:30</option>
             <option value="11:00">11:00 - 12:30</option>
@@ -103,13 +131,13 @@
       </div>
     </div>
 
-    <!-- Authentication Notice -->
+    <!-- Auth Notice -->
     <div class="auth-notice" id="authPrompt">
       <i class="fas fa-lock"></i>
       <span id="authMsg">🔐 To confirm service, please log in or create an account.</span>
     </div>
 
-    <!-- Demo Footnote -->
+    <!-- Demo Note -->
     <div class="demo-note" id="footnoteDemo">
       ⚡ Demo: you can select vehicle, see dynamic service lists & prices — no login required for preview.
     </div>
@@ -120,14 +148,14 @@
     </footer>
   </div>
 
-  <!-- Floating Confirm Booking Button (fixed on right) -->
+  <!-- Floating Confirm Button -->
   <div class="confirm-booking-wrapper">
     <button id="confirmBookingBtn" class="confirm-btn">
       <i class="fas fa-check-circle"></i> Confirm Booking
     </button>
   </div>
 
-  <!-- Custom JavaScript (ONLY ONCE)ok-->
+  <!-- JavaScript -->
   <script src="script.js"></script>
 </body>
 </html>
